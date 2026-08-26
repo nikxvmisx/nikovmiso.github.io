@@ -635,7 +635,7 @@
     </div>
     <div class="menu-content">
         <button class="menu-item" id="open-settings">⚙️ Выбор темы</button>
-        <a href="https://t.me/nikxvmisx" target="_blank" class="menu-item">📢 Канал автора</a>
+        <a href="https://t.me/nikxvmisx" target="_blank" class="menu-item">📢 Канал автора[cite: 5]</a>
     </div>
 </div>
 
@@ -1007,7 +1007,6 @@
     }
 
     function getClickGain() { 
-        // Базовый клик теперь масштабируется с покупкой улучшений и престижем
         let base = (1 + (state.clickLvl * 1)) * getGlobalMultiplier();
         if (state.tech3Lvl > 0) base *= 2;
         return Math.floor(base); 
@@ -1093,7 +1092,7 @@
         camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
         camera.position.set(22, 18, 26);
 
-        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.setSize(container.clientWidth, container.clientHeight);
         renderer.setClearColor(0x0f141d, 1);
