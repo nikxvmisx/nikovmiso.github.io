@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Roblox 3D Tycoon Pro</title>
+    <!-- Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Three.js и загрузчики -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
@@ -212,7 +214,6 @@
             cursor: pointer;
         }
 
-        /* Анимация текста при клике */
         .floating-text {
             position: absolute;
             font-weight: 800;
@@ -233,7 +234,6 @@
 <body>
 
 <div class="game-card">
-    <!-- СТАТИСТИКА -->
     <div class="stats-panel">
         <div class="stats-row">
             <div class="cash-display" id="cash-val">$0</div>
@@ -248,12 +248,10 @@
         </div>
     </div>
 
-    <!-- 3D Окно -->
     <div id="canvas-container">
         <div class="tap-hint">Тапай по 3D-окну!</div>
     </div>
 
-    <!-- МАГАЗИН -->
     <div class="shop-header">
         <span>Улучшения</span>
         <button class="reset-btn" id="reset-game-btn">Сброс</button>
@@ -292,10 +290,19 @@
 </div>
 
 <script>
+    // --- ИНИЦИАЛИЗАЦИЯ TELEGRAM MINI APP ---
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+        tg.ready();
+        tg.expand();
+        if (tg.enableClosingConfirmation) tg.enableClosingConfirmation();
+        if (tg.setHeaderColor) tg.setHeaderColor('#181b29');
+        if (tg.setBackgroundColor) tg.setBackgroundColor('#181b29');
+    }
+
     document.addEventListener('gesturestart', (e) => e.preventDefault());
     document.addEventListener('dblclick', (e) => e.preventDefault());
 
-    // --- УТИЛИТА ФОРМАТИРОВАНИЯ ЧИСЕЛ ---
     function formatNumber(num) {
         if (num < 1000) return num.toString();
         const suffixes = ["", "K", "M", "B", "T", "Qa", "Qi"];
@@ -305,7 +312,7 @@
         return (formatted.endsWith('.0') ? formatted.slice(0, -2) : formatted) + suffixes[i];
     }
 
-    // --- АУДИО СИСТЕМА (Web Audio API - Громкий звук) ---
+    // --- АУДИО СИСТЕМА ---
     let audioCtx = null;
     function initAudio() {
         if (!audioCtx) {
@@ -328,7 +335,7 @@
             osc.type = 'sine';
             osc.frequency.setValueAtTime(450, now);
             osc.frequency.exponentialRampToValueAtTime(850, now + 0.08);
-            gain.gain.setValueAtTime(0.8, now); // Максимально слышимая громкость
+            gain.gain.setValueAtTime(0.8, now);
             gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
             osc.start(now);
             osc.stop(now + 0.08);
@@ -352,16 +359,18 @@
         }
     }
 
-    // --- ВИБРООТКЛИК ---
-    function triggerVibration(pattern = 30) {
-        if (navigator && typeof navigator.vibrate === 'function') {
-            try {
-                navigator.vibrate(pattern);
-            } catch (e) {}
+    // --- НАТИВНАЯ ВИБРАЦИЯ TELEGRAM / BROWSER ---
+    function triggerVibration(type = 'light') {
+        if (tg && tg.HapticFeedback) {
+            if (type === 'medium') tg.HapticFeedback.impactOccurred('medium');
+            else if (type === 'heavy') tg.HapticFeedback.impactOccurred('heavy');
+            else if (type === 'success') tg.HapticFeedback.notificationOccurred('success');
+            else tg.HapticFeedback.impactOccurred('light');
+        } else if (navigator && typeof navigator.vibrate === 'function') {
+            try { navigator.vibrate(30); } catch (e) {}
         }
     }
 
-    // --- СОСТОЯНИЕ ИГРЫ ---
     const defaultState = {
         cash: 0,
         cps: 0,
@@ -379,7 +388,6 @@
     let state = { ...defaultState };
     let scene, camera, renderer, buildingModel, particles = [];
 
-    // Глобальные геометрии/материалы для частиц
     const particleGeo = new THREE.BoxGeometry(0.3, 0.3, 0.3);
     const particleMat = new THREE.MeshBasicMaterial({ color: 0xe1b12c });
 
@@ -434,7 +442,6 @@
             createFallbackBuilding();
         });
 
-        // Клик работает при нажатии в ЛЮБУЮ точку 3D-окна
         container.addEventListener('pointerdown', (e) => {
             e.preventDefault();
             handleClick(e);
@@ -511,7 +518,7 @@
         create3DParticles();
         createFloatingText(event.clientX - rect.left, event.clientY - rect.top);
         playSound('click');
-        triggerVibration(30);
+        triggerVibration('light');
         updateUI();
         saveGame();
     }
@@ -523,7 +530,7 @@
             state.level++;
             state.xpToNext = Math.floor(state.xpToNext * 1.5);
             playSound('levelup');
-            triggerVibration([40, 50, 40]);
+            triggerVibration('success');
             updateModelVisuals();
         }
     }
@@ -575,7 +582,7 @@
             state.clickPower += 1;
             state.clickCost = Math.floor(state.clickCost * 1.5);
             playSound('buy');
-            triggerVibration(25);
+            triggerVibration('medium');
             updateUI();
             saveGame();
         }
@@ -589,7 +596,7 @@
             state.cps += 2;
             state.autoCost = Math.floor(state.autoCost * 1.6);
             playSound('buy');
-            triggerVibration(25);
+            triggerVibration('medium');
             updateUI();
             saveGame();
         }
@@ -603,7 +610,7 @@
             state.clickPower += 5;
             state.superClickCost = Math.floor(state.superClickCost * 1.7);
             playSound('buy');
-            triggerVibration(25);
+            triggerVibration('medium');
             updateUI();
             saveGame();
         }
@@ -617,7 +624,7 @@
             state.cps += 10;
             state.factoryCost = Math.floor(state.factoryCost * 1.8);
             playSound('buy');
-            triggerVibration(25);
+            triggerVibration('medium');
             updateUI();
             saveGame();
         }
