@@ -904,9 +904,14 @@
         if (isNaN(num) || num === null) return "0";
         if (num < 1000) return num.toString();
         const suffixes = ["", "K", "M", "B", "T", "Qa"];
-        const i = Math.floor(Math.log10(num) / 3);
+        let i = Math.floor(Math.log10(num) / 3);
         if (i >= suffixes.length) return num.toExponential(2);
-        const formatted = (num / Math.pow(10, i * 3)).toFixed(1);
+        let formatted = (num / Math.pow(10, i * 3)).toFixed(1);
+        // toFixed can round up to 1000.0 (e.g. 999999 -> "1000.0"), which needs to bump to the next suffix
+        if (parseFloat(formatted) >= 1000 && i + 1 < suffixes.length) {
+            i += 1;
+            formatted = (num / Math.pow(10, i * 3)).toFixed(1);
+        }
         return (formatted.endsWith('.0') ? formatted.slice(0, -2) : formatted) + suffixes[i];
     }
 
@@ -999,11 +1004,20 @@
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
+    // Tech1 = "+25% ко всем доходам" (global), Tech3 = "Ускорение FEVER и X2 клик" (click-only + fever cooldown).
+    // Tech3 used to also silently multiply getGlobalMultiplier by 1.5, giving every income source (not just clicks,
+    // as advertised) an undocumented bonus on top of the x2 click multiplier below. Removed so the tech only does
+    // what its description says.
     function getGlobalMultiplier() {
         let mult = 1 + (state.tech1Lvl * 0.25);
-        if (state.tech3Lvl > 0) mult *= 1.5;
         let prestigeMult = 1 + (state.prestigeLevel * 1.0);
         return mult * prestigeMult;
+    }
+
+    // Tech2 = "+50% к пассиву (CPS)". CPS = auto + factory + storage, but the bonus was only wired into auto,
+    // so factory/storage silently missed their promised +50%. Centralized here so all three passive sources get it.
+    function getPassiveMultiplier() {
+        return state.tech2Lvl > 0 ? 1.5 : 1;
     }
 
     function getClickGain() { 
@@ -1014,13 +1028,12 @@
     
     function getAutoGain() { 
         let base = 2 + Math.floor(state.autoLvl * 0.8);
-        if (state.tech2Lvl > 0) base *= 1.5;
-        return Math.floor(base * getGlobalMultiplier()); 
+        return Math.floor(base * getPassiveMultiplier() * getGlobalMultiplier()); 
     }
     
     function getSuperClickGain() { return Math.floor((5 + Math.floor(state.superClickLvl * 1.5)) * getGlobalMultiplier()); }
-    function getFactoryGain() { return Math.floor((10 + Math.floor(state.factoryLvl * 3.0)) * getGlobalMultiplier()); }
-    function getStorageGain() { return Math.floor((25 + Math.floor(state.storageLvl * 5.0)) * getGlobalMultiplier()); }
+    function getFactoryGain() { return Math.floor((10 + Math.floor(state.factoryLvl * 3.0)) * getPassiveMultiplier() * getGlobalMultiplier()); }
+    function getStorageGain() { return Math.floor((25 + Math.floor(state.storageLvl * 5.0)) * getPassiveMultiplier() * getGlobalMultiplier()); }
 
     function switchTab(tabName) {
         document.getElementById('tab-shop-btn').classList.remove('active');
@@ -1385,7 +1398,7 @@
         if (goldenChest) {
             const intersects = raycaster.intersectObject(goldenChest);
             if (intersects.length > 0) {
-                const bonus = getClickGain() * 35 + 50;
+                const bonus = (getClickGain() + getSuperClickGain()) * 35 + 50;
                 state.cash += bonus;
                 createFloatingText(event.clientX - rect.left, event.clientY - rect.top, `+$${formatNumber(bonus)} GOLD!`, true);
                 playSound('gold');
@@ -1401,7 +1414,8 @@
         }
 
         addCombo();
-        const currentPower = isFever ? getClickGain() * 5 : getClickGain();
+        const basePower = getClickGain() + getSuperClickGain();
+        const currentPower = isFever ? basePower * 5 : basePower;
         state.cash += currentPower;
         addXP(2);
 
@@ -1474,10 +1488,14 @@
     function addXP(amount) {
         let bonusXp = amount * (1 + state.prestigeLevel * 0.5);
         state.xp += bonusXp;
-        if (state.xp >= state.xpToNext) {
+        let leveledUp = false;
+        while (state.xp >= state.xpToNext) {
             state.xp -= state.xpToNext;
             state.level++;
             state.xpToNext = Math.floor(state.xpToNext * 1.4);
+            leveledUp = true;
+        }
+        if (leveledUp) {
             triggerVibration('success');
             updateModelVisuals();
         }
@@ -1615,6 +1633,9 @@
             state.cash -= state.terr3Cost;
             state.terr3Lvl = 1;
             state.level += 3;
+            for (let i = 0; i < 3; i++) {
+                state.xpToNext = Math.floor(state.xpToNext * 1.4);
+            }
             playSound('buy'); triggerVibration('success'); updateModelVisuals(); updateUI(); saveGame();
         }
     });
@@ -1673,7 +1694,7 @@
         cashEl.innerText = `$${formatNumber(state.cash)}`;
         document.getElementById('reborn-tier-label').innerText = `Баланс (Престиж x${state.prestigeLevel})`;
         cpsEl.innerText = `+ $${formatNumber(state.cps)} /сек`;
-        cpcEl.innerText = `+ $${formatNumber(getClickGain() * (isFever ? 5 : 1))} /клик`;
+        cpcEl.innerText = `+ $${formatNumber((getClickGain() + getSuperClickGain()) * (isFever ? 5 : 1))} /клик`;
         
         levelEl.innerText = `Уровень ${state.level}`;
         xpEl.innerText = `XP: ${formatNumber(state.xp)} / ${formatNumber(state.xpToNext)}`;
@@ -1744,7 +1765,8 @@
                 }
 
                 if (state.lastSaveTime && state.cps > 0) {
-                    const elapsedSec = Math.floor((Date.now() - state.lastSaveTime) / 1000);
+                    const MAX_OFFLINE_SEC = 12 * 60 * 60; // cap at 12h so clock-forward tricks can't mint infinite cash
+                    const elapsedSec = Math.min(MAX_OFFLINE_SEC, Math.floor((Date.now() - state.lastSaveTime) / 1000));
                     if (elapsedSec > 3) {
                         const offlineEarnings = elapsedSec * state.cps;
                         state.cash += offlineEarnings;
