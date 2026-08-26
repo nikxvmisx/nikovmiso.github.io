@@ -635,7 +635,7 @@
     </div>
     <div class="menu-content">
         <button class="menu-item" id="open-settings">⚙️ Выбор темы</button>
-        <a href="https://t.me/nikxvmisx" target="_blank" class="menu-item">📢 Канал автора</a>
+        <a href="https://t.me/nikxvmisx" target="_blank" class="menu-item">📢 Канал автора[cite: 5]</a>
     </div>
 </div>
 
@@ -845,7 +845,7 @@
 </div>
 
 <script>
-    const SAVE_VERSION = 2;
+    const SAVE_VERSION = 3;
     const tg = window.Telegram?.WebApp;
     if (tg) {
         tg.ready();
@@ -966,7 +966,7 @@
         level: 1,
         xp: 0,
         xpToNext: 100,
-        prestigeLevel: 0, // Перерождение
+        prestigeLevel: 0,
         clickLvl: 0,
         autoLvl: 0,
         superClickLvl: 0,
@@ -1002,15 +1002,14 @@
     function getGlobalMultiplier() {
         let mult = 1 + (state.tech1Lvl * 0.25);
         if (state.tech3Lvl > 0) mult *= 1.5;
-        // Бонус за перерождение: +100% (x2) за каждый уровень престижа
         let prestigeMult = 1 + (state.prestigeLevel * 1.0);
         return mult * prestigeMult;
     }
 
     function getClickGain() { 
-        let base = 1 + Math.floor(state.clickLvl * 0.4);
+        let base = (1 + (state.clickLvl * 1)) * getGlobalMultiplier();
         if (state.tech3Lvl > 0) base *= 2;
-        return Math.floor(base * getGlobalMultiplier()); 
+        return Math.floor(base); 
     }
     
     function getAutoGain() { 
@@ -1093,7 +1092,7 @@
         camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
         camera.position.set(22, 18, 26);
 
-        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.setSize(container.clientWidth, container.clientHeight);
         renderer.setClearColor(0x0f141d, 1);
@@ -1386,7 +1385,7 @@
         if (goldenChest) {
             const intersects = raycaster.intersectObject(goldenChest);
             if (intersects.length > 0) {
-                const bonus = state.clickPower * 35 + 50;
+                const bonus = getClickGain() * 35 + 50;
                 state.cash += bonus;
                 createFloatingText(event.clientX - rect.left, event.clientY - rect.top, `+$${formatNumber(bonus)} GOLD!`, true);
                 playSound('gold');
@@ -1473,7 +1472,6 @@
     }
 
     function addXP(amount) {
-        // Ускорение прокачки опыта за счет престижа (+50% за уровень)
         let bonusXp = amount * (1 + state.prestigeLevel * 0.5);
         state.xp += bonusXp;
         if (state.xp >= state.xpToNext) {
@@ -1621,7 +1619,6 @@
         }
     });
 
-    // ЛОГИКА ПЕРЕРОЖДЕНИЯ (ПРЕСТИЖА)
     document.getElementById('reborn-game-btn').addEventListener('click', (e) => {
         e.stopPropagation();
         let cost = 100000;
