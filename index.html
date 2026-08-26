@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Roblox 3D Tycoon Pro</title>
+    <title>Cyberpunk Factory 3D Tycoon</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -133,8 +133,8 @@
 
         #canvas-container {
             width: 100%;
-            height: 34vh;
-            min-height: 220px;
+            height: 30vh;
+            min-height: 200px;
             border-radius: 18px;
             overflow: hidden;
             background: #0f141d;
@@ -182,7 +182,7 @@
 
         .combo-wrapper {
             position: absolute;
-            bottom: 10px;
+            bottom: 8px;
             left: 12px;
             right: 12px;
             display: flex;
@@ -219,6 +219,34 @@
             background: #57606f !important;
         }
 
+        /* Навигация по вкладкам (Магазин / Технологии / Территории) */
+        .tabs-header {
+            display: flex;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 7px 4px;
+            background: #141824;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            color: #8a9bb2;
+            font-size: 11px;
+            font-weight: 800;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: rgba(0, 242, 254, 0.15);
+            color: #00f2fe;
+            border-color: rgba(0, 242, 254, 0.4);
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.15);
+        }
+
         .shop-header {
             font-size: 11px;
             font-weight: 800;
@@ -243,6 +271,10 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
+        }
+
+        .shop-panel.hidden {
+            display: none;
         }
 
         .shop-item {
@@ -385,13 +417,20 @@
         </div>
     </div>
 
-    <!-- МАГАЗИН -->
+    <!-- ВКЛАДКИ МЕНЮ -->
+    <div class="tabs-header">
+        <button class="tab-btn active" id="tab-shop-btn" onclick="switchTab('shop')">Фабрика</button>
+        <button class="tab-btn" id="tab-tech-btn" onclick="switchTab('tech')">Дерево Техно</button>
+        <button class="tab-btn" id="tab-territory-btn" onclick="switchTab('territory')">Территории</button>
+    </div>
+
     <div class="shop-header">
-        <span>Улучшения Базы</span>
+        <span id="panel-title">Улучшения Базы</span>
         <button class="reset-btn" id="reset-game-btn">Сброс</button>
     </div>
     
-    <div class="shop-panel">
+    <!-- ПАНЕЛЬ 1: МАГАЗИН ФАБРИКИ -->
+    <div class="shop-panel" id="panel-shop">
         <div class="shop-item">
             <div class="shop-item-info">
                 <div class="shop-item-top">
@@ -450,6 +489,84 @@
                 <div class="shop-item-cost" id="upgrade-storage-cost">Цена: $650</div>
             </div>
             <button class="shop-item-btn" id="buy-storage-btn">Улучшить</button>
+        </div>
+    </div>
+
+    <!-- ПАНЕЛЬ 2: ДЕРЕВО ТЕХНОЛОГИЙ -->
+    <div class="shop-panel hidden" id="panel-tech">
+        <div class="shop-item">
+            <div class="shop-item-info">
+                <div class="shop-item-top">
+                    <span class="shop-item-title">Квантовый Процессор</span>
+                    <span class="item-lvl-badge" id="lvl-tech1">Ур. 0</span>
+                </div>
+                <div class="shop-item-gain">+25% ко всем доходам</div>
+                <div class="shop-item-cost" id="cost-tech1">Цена: $500</div>
+            </div>
+            <button class="shop-item-btn" id="buy-tech1-btn">Изучить</button>
+        </div>
+
+        <div class="shop-item">
+            <div class="shop-item-info">
+                <div class="shop-item-top">
+                    <span class="shop-item-title">Нано-Боты Сети</span>
+                    <span class="item-lvl-badge" id="lvl-tech2">Ур. 0</span>
+                </div>
+                <div class="shop-item-gain">+50% к пассиву (CPS)</div>
+                <div class="shop-item-cost" id="cost-tech2">Цена: $2,000</div>
+            </div>
+            <button class="shop-item-btn" id="buy-tech2-btn">Изучить</button>
+        </div>
+
+        <div class="shop-item">
+            <div class="shop-item-info">
+                <div class="shop-item-top">
+                    <span class="shop-item-title">ИИ Автоматизация</span>
+                    <span class="item-lvl-badge" id="lvl-tech3">Ур. 0</span>
+                </div>
+                <div class="shop-item-gain">Ускорение FEVER и X2 клик</div>
+                <div class="shop-item-cost" id="cost-tech3">Цена: $10,000</div>
+            </div>
+            <button class="shop-item-btn" id="buy-tech3-btn">Изучить</button>
+        </div>
+    </div>
+
+    <!-- ПАНЕЛЬ 3: РАСШИРЕНИЕ ТЕРРИТОРИЙ -->
+    <div class="shop-panel hidden" id="panel-territory">
+        <div class="shop-item">
+            <div class="shop-item-info">
+                <div class="shop-item-top">
+                    <span class="shop-item-title">Сектор Б: Энерго-Кольцо</span>
+                    <span class="item-lvl-badge" id="lvl-terr1">Закрыто</span>
+                </div>
+                <div class="shop-item-gain">Открывает внешнюю платформу</div>
+                <div class="shop-item-cost" id="cost-terr1">Цена: $1,500</div>
+            </div>
+            <button class="shop-item-btn" id="buy-terr1-btn">Захватить</button>
+        </div>
+
+        <div class="shop-item">
+            <div class="shop-item-info">
+                <div class="shop-item-top">
+                    <span class="shop-item-title">Сектор В: Ангар Дронов</span>
+                    <span class="item-lvl-badge" id="lvl-terr2">Закрыто</span>
+                </div>
+                <div class="shop-item-gain">Удваивает максимальных дронов</div>
+                <div class="shop-item-cost" id="cost-terr2">Цена: $7,500</div>
+            </div>
+            <button class="shop-item-btn" id="buy-terr2-btn">Захватить</button>
+        </div>
+
+        <div class="shop-item">
+            <div class="shop-item-info">
+                <div class="shop-item-top">
+                    <span class="shop-item-title">Сектор Г: Кибер-Цитадель</span>
+                    <span class="item-lvl-badge" id="lvl-terr3">Закрыто</span>
+                </div>
+                <div class="shop-item-gain">Максимальный уровень базы</div>
+                <div class="shop-item-cost" id="cost-terr3">Цена: $35,000</div>
+            </div>
+            <button class="shop-item-btn" id="buy-terr3-btn">Захватить</button>
         </div>
     </div>
 </div>
@@ -537,6 +654,14 @@
         superClickCost: 120,
         factoryCost: 300,
         storageCost: 650,
+        // Технологии
+        tech1Lvl: 0, tech1Cost: 500,
+        tech2Lvl: 0, tech2Cost: 2000,
+        tech3Lvl: 0, tech3Cost: 10000,
+        // Территории
+        terr1Lvl: 0, terr1Cost: 1500,
+        terr2Lvl: 0, terr2Cost: 7500,
+        terr3Lvl: 0, terr3Cost: 35000,
         lastSaveTime: Date.now()
     };
 
@@ -547,22 +672,62 @@
     let feverActiveTimer = 0;   
     let feverCooldownTimer = 0; 
 
-    let scene, camera, renderer, baseGroup, platformMesh, gridMesh;
+    let scene, camera, renderer, baseGroup, platformMesh, gridMesh, outerRingMesh;
     let mainBuildingMesh, buildingRoofUnit, buildingGroup, factoryWingMesh, storageMesh, smokeParticles = [], drones = [], lampsGroup;
     let goldenChest = null;
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
-    function getClickGain() { return 1 + Math.floor(state.clickLvl * 0.4); }
-    function getAutoGain() { return 2 + Math.floor(state.autoLvl * 0.8); }
-    function getSuperClickGain() { return 5 + Math.floor(state.superClickLvl * 1.5); }
-    function getFactoryGain() { return 10 + Math.floor(state.factoryLvl * 3.0); }
-    function getStorageGain() { return 25 + Math.floor(state.storageLvl * 5.0); }
+    // Расчет с учетом глобальных множителей от дерева технологий
+    function getGlobalMultiplier() {
+        let mult = 1 + (state.tech1Lvl * 0.25);
+        if (state.tech3Lvl > 0) mult *= 1.5;
+        return mult;
+    }
 
-    // Создание стандартного квадратного окна
+    function getClickGain() { 
+        let base = 1 + Math.floor(state.clickLvl * 0.4);
+        if (state.tech3Lvl > 0) base *= 2;
+        return Math.floor(base * getGlobalMultiplier()); 
+    }
+    
+    function getAutoGain() { 
+        let base = 2 + Math.floor(state.autoLvl * 0.8);
+        if (state.tech2Lvl > 0) base *= 1.5;
+        return Math.floor(base * getGlobalMultiplier()); 
+    }
+    
+    function getSuperClickGain() { return Math.floor((5 + Math.floor(state.superClickLvl * 1.5)) * getGlobalMultiplier()); }
+    function getFactoryGain() { return Math.floor((10 + Math.floor(state.factoryLvl * 3.0)) * getGlobalMultiplier()); }
+    function getStorageGain() { return Math.floor((25 + Math.floor(state.storageLvl * 5.0)) * getGlobalMultiplier()); }
+
+    function switchTab(tabName) {
+        document.getElementById('tab-shop-btn').classList.remove('active');
+        document.getElementById('tab-tech-btn').classList.remove('active');
+        document.getElementById('tab-territory-btn').classList.remove('active');
+
+        document.getElementById('panel-shop').classList.add('hidden');
+        document.getElementById('panel-tech').classList.add('hidden');
+        document.getElementById('panel-territory').classList.add('hidden');
+
+        if (tabName === 'shop') {
+            document.getElementById('tab-shop-btn').classList.add('active');
+            document.getElementById('panel-shop').classList.remove('hidden');
+            document.getElementById('panel-title').innerText = 'Улучшения Базы';
+        } else if (tabName === 'tech') {
+            document.getElementById('tab-tech-btn').classList.add('active');
+            document.getElementById('panel-tech').classList.remove('hidden');
+            document.getElementById('panel-title').innerText = 'Дерево Технологий';
+        } else if (tabName === 'territory') {
+            document.getElementById('tab-territory-btn').classList.add('active');
+            document.getElementById('panel-territory').classList.remove('hidden');
+            document.getElementById('panel-title').innerText = 'Расширение Территорий';
+        }
+        playSound('buy');
+    }
+
     function createWindow(x, y, z, rotY) {
         const winGroup = new THREE.Group();
-        
         const frameGeo = new THREE.BoxGeometry(0.9, 1.1, 0.1);
         const frameMat = new THREE.MeshStandardMaterial({ color: 0x485460, metalness: 0.8, roughness: 0.3 });
         const frame = new THREE.Mesh(frameGeo, frameMat);
@@ -578,10 +743,8 @@
         return winGroup;
     }
 
-    // Создание входной двери на первом этаже
     function createDoor(x, y, z, rotY) {
         const doorGroup = new THREE.Group();
-
         const portalGeo = new THREE.BoxGeometry(1.6, 2.2, 0.15);
         const portalMat = new THREE.MeshStandardMaterial({ color: 0x2f3640, metalness: 0.9, roughness: 0.2 });
         const portal = new THREE.Mesh(portalGeo, portalMat);
@@ -635,9 +798,16 @@
         gridMesh.position.y = 0.01;
         baseGroup.add(gridMesh);
 
+        // Внешнее кольцо территории (Сектор Б)
+        const ringGeo = new THREE.BoxGeometry(24, 0.4, 24);
+        const ringMat = new THREE.MeshStandardMaterial({ color: 0x111622, roughness: 0.7, metalness: 0.8 });
+        outerRingMesh = new THREE.Mesh(ringGeo, ringMat);
+        outerRingMesh.position.y = -0.5;
+        outerRingMesh.visible = false;
+        baseGroup.add(outerRingMesh);
+
         // 2. Главное здание
         buildingGroup = new THREE.Group();
-        
         const mainGeo = new THREE.BoxGeometry(6, 6, 6);
         const mainMat = new THREE.MeshStandardMaterial({ color: 0x222a38, roughness: 0.3, metalness: 0.4 });
         mainBuildingMesh = new THREE.Mesh(mainGeo, mainMat);
@@ -652,7 +822,7 @@
 
         baseGroup.add(buildingGroup);
 
-        // 3. Фабрика (Прижата вплотную к правому боку башни: X = 5.0, Z = 0)
+        // 3. Фабрика
         factoryWingMesh = new THREE.Group();
         const facGeo = new THREE.BoxGeometry(4, 4.5, 4.5);
         const facMat = new THREE.MeshStandardMaterial({ color: 0x2f3640, metalness: 0.7 });
@@ -738,7 +908,6 @@
         });
     }
 
-    // ДИНАМИЧЕСКОЕ ОБНОВЛЕНИЕ ЗДАНИЙ И СИММЕТРИЧНЫХ ОКОН С ВХОДОМ НА ПРОТИВОПОЛОЖНОЙ СТОРОНЕ
     function updateModelVisuals() {
         if (!baseGroup) return;
 
@@ -746,12 +915,13 @@
         platformMesh.scale.set(platformScale, 1, platformScale);
         gridMesh.scale.set(platformScale, 1, platformScale);
 
+        if (outerRingMesh) outerRingMesh.visible = (state.terr1Lvl > 0);
+
         const heightScale = 1 + Math.min((state.level - 1) * 0.08, 1.2);
         mainBuildingMesh.scale.set(1, heightScale, 1);
         mainBuildingMesh.position.y = 3 * heightScale;
         buildingRoofUnit.position.y = 6 * heightScale + 0.4;
 
-        // Удаляем старые окна и двери для перегенерации
         const oldElements = buildingGroup.children.filter(c => c !== mainBuildingMesh && c !== buildingRoofUnit);
         oldElements.forEach(el => buildingGroup.remove(el));
 
@@ -761,18 +931,14 @@
         for (let i = 0; i < floorsCount; i++) {
             const floorY = 1.8 + i * 1.8;
             if (floorY < currentBuildingHeight - 0.5) {
-                
-                // 1. Лицевой фасад (Z = 3.01) — 3 ряда окон
                 buildingGroup.add(createWindow(0, floorY, 3.01, 0));
                 buildingGroup.add(createWindow(-1.6, floorY, 3.01, 0));
                 buildingGroup.add(createWindow(1.6, floorY, 3.01, 0));
 
-                // 2. Левая стенка (X = -3.01) — 3 ряда окон
                 buildingGroup.add(createWindow(-3.01, floorY, 0, -Math.PI / 2));
                 buildingGroup.add(createWindow(-3.01, floorY, -1.6, -Math.PI / 2));
                 buildingGroup.add(createWindow(-3.01, floorY, 1.6, -Math.PI / 2));
 
-                // 3. Задняя стенка (Z = -3.01) — перенесена входная дверь на первый этаж сюда (противоположная сторона от лицевой)
                 if (i === 0) {
                     buildingGroup.add(createDoor(0, 0, -3.01, Math.PI));
                     buildingGroup.add(createWindow(-1.6, floorY + 1.2, -3.01, Math.PI));
@@ -783,7 +949,6 @@
                     buildingGroup.add(createWindow(1.6, floorY, -3.01, Math.PI));
                 }
 
-                // 4. Правая стенка (X = 3.01) — 3 ряда окон
                 buildingGroup.add(createWindow(3.01, floorY, 0, Math.PI / 2));
                 buildingGroup.add(createWindow(3.01, floorY, -1.6, Math.PI / 2));
                 buildingGroup.add(createWindow(3.01, floorY, 1.6, Math.PI / 2));
@@ -794,7 +959,10 @@
         if (storageMesh) storageMesh.visible = (state.storageLvl > 0);
         if (lampsGroup) lampsGroup.visible = (state.superClickLvl > 0);
 
-        while (drones.length < Math.min(state.autoLvl, 8)) {
+        let maxDrones = 8;
+        if (state.terr2Lvl > 0) maxDrones = 16;
+
+        while (drones.length < Math.min(state.autoLvl, maxDrones)) {
             createDrone();
         }
     }
@@ -909,7 +1077,7 @@
         }
 
         addCombo();
-        const currentPower = isFever ? state.clickPower * 5 : state.clickPower;
+        const currentPower = isFever ? getClickGain() * 5 : getClickGain();
         state.cash += currentPower;
         addXP(2);
 
@@ -931,6 +1099,8 @@
     function handleFeverTimers(dt) {
         const comboFill = document.getElementById('combo-fill');
         const comboStatus = document.getElementById('combo-status');
+        let cdMax = 180;
+        if (state.tech3Lvl > 0) cdMax = 120; // Ускоренный КД от технологий
 
         if (isFever) {
             feverActiveTimer -= dt;
@@ -940,14 +1110,14 @@
 
             if (feverActiveTimer <= 0) {
                 isFever = false;
-                feverCooldownTimer = 180;
+                feverCooldownTimer = cdMax;
                 document.getElementById('canvas-container').classList.remove('fever-active');
                 document.getElementById('fever-badge').classList.remove('active');
                 comboFill.classList.add('cooldown');
             }
         } else if (feverCooldownTimer > 0) {
             feverCooldownTimer -= dt;
-            const pct = Math.max(0, (feverCooldownTimer / 180) * 100);
+            const pct = Math.max(0, (feverCooldownTimer / cdMax) * 100);
             comboFill.style.width = `${pct}%`;
             
             const mins = Math.floor(feverCooldownTimer / 60);
@@ -1013,11 +1183,18 @@
     const buyFactoryBtn = document.getElementById('buy-factory-btn');
     const buyStorageBtn = document.getElementById('buy-storage-btn');
 
+    const buyTech1Btn = document.getElementById('buy-tech1-btn');
+    const buyTech2Btn = document.getElementById('buy-tech2-btn');
+    const buyTech3Btn = document.getElementById('buy-tech3-btn');
+
+    const buyTerr1Btn = document.getElementById('buy-terr1-btn');
+    const buyTerr2Btn = document.getElementById('buy-terr2-btn');
+    const buyTerr3Btn = document.getElementById('buy-terr3-btn');
+
     buyClickBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         if (state.cash >= state.clickCost) {
             state.cash -= state.clickCost;
-            state.clickPower += getClickGain();
             state.clickLvl = (state.clickLvl || 0) + 1;
             state.clickCost = Math.floor(state.clickCost * 1.25);
             playSound('buy'); triggerVibration('medium'); updateUI(); saveGame();
@@ -1028,7 +1205,6 @@
         e.stopPropagation();
         if (state.cash >= state.autoCost) {
             state.cash -= state.autoCost;
-            state.cps += getAutoGain();
             state.autoLvl = (state.autoLvl || 0) + 1;
             state.autoCost = Math.floor(state.autoCost * 1.28);
             playSound('buy'); triggerVibration('medium'); updateModelVisuals(); updateUI(); saveGame();
@@ -1039,7 +1215,6 @@
         e.stopPropagation();
         if (state.cash >= state.superClickCost) {
             state.cash -= state.superClickCost;
-            state.clickPower += getSuperClickGain();
             state.superClickLvl = (state.superClickLvl || 0) + 1;
             state.superClickCost = Math.floor(state.superClickCost * 1.30);
             playSound('buy'); triggerVibration('medium'); updateModelVisuals(); updateUI(); saveGame();
@@ -1050,7 +1225,6 @@
         e.stopPropagation();
         if (state.cash >= state.factoryCost) {
             state.cash -= state.factoryCost;
-            state.cps += getFactoryGain();
             state.factoryLvl = (state.factoryLvl || 0) + 1;
             state.factoryCost = Math.floor(state.factoryCost * 1.35);
             playSound('buy'); triggerVibration('medium'); updateModelVisuals(); updateUI(); saveGame();
@@ -1061,10 +1235,66 @@
         e.stopPropagation();
         if (state.cash >= state.storageCost) {
             state.cash -= state.storageCost;
-            state.cps += getStorageGain();
             state.storageLvl = (state.storageLvl || 0) + 1;
             state.storageCost = Math.floor(state.storageCost * 1.40);
             playSound('buy'); triggerVibration('medium'); updateModelVisuals(); updateUI(); saveGame();
+        }
+    });
+
+    // Обработка дерева технологий
+    buyTech1Btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (state.cash >= state.tech1Cost && state.tech1Lvl === 0) {
+            state.cash -= state.tech1Cost;
+            state.tech1Lvl = 1;
+            playSound('buy'); triggerVibration('success'); updateUI(); saveGame();
+        }
+    });
+
+    buyTech2Btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (state.cash >= state.tech2Cost && state.tech2Lvl === 0) {
+            state.cash -= state.tech2Cost;
+            state.tech2Lvl = 1;
+            playSound('buy'); triggerVibration('success'); updateUI(); saveGame();
+        }
+    });
+
+    buyTech3Btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (state.cash >= state.tech3Cost && state.tech3Lvl === 0) {
+            state.cash -= state.tech3Cost;
+            state.tech3Lvl = 1;
+            playSound('buy'); triggerVibration('success'); updateUI(); saveGame();
+        }
+    });
+
+    // Обработка расширения территорий
+    buyTerr1Btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (state.cash >= state.terr1Cost && state.terr1Lvl === 0) {
+            state.cash -= state.terr1Cost;
+            state.terr1Lvl = 1;
+            playSound('buy'); triggerVibration('success'); updateModelVisuals(); updateUI(); saveGame();
+        }
+    });
+
+    buyTerr2Btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (state.cash >= state.terr2Cost && state.terr2Lvl === 0) {
+            state.cash -= state.terr2Cost;
+            state.terr2Lvl = 1;
+            playSound('buy'); triggerVibration('success'); updateModelVisuals(); updateUI(); saveGame();
+        }
+    });
+
+    buyTerr3Btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (state.cash >= state.terr3Cost && state.terr3Lvl === 0) {
+            state.cash -= state.terr3Cost;
+            state.terr3Lvl = 1;
+            state.level += 3; // Мощный буст уровня базы
+            playSound('buy'); triggerVibration('success'); updateModelVisuals(); updateUI(); saveGame();
         }
     });
 
@@ -1079,9 +1309,11 @@
     });
 
     function updateUI() {
+        state.cps = getAutoGain() + getFactoryGain() + getStorageGain();
+
         cashEl.innerText = `$${formatNumber(state.cash)}`;
         cpsEl.innerText = `+ $${formatNumber(state.cps)} /сек`;
-        cpcEl.innerText = `+ $${formatNumber(state.clickPower * (isFever ? 5 : 1))} /клик`;
+        cpcEl.innerText = `+ $${formatNumber(getClickGain() * (isFever ? 5 : 1))} /клик`;
         
         levelEl.innerText = `Уровень ${state.level}`;
         xpEl.innerText = `XP: ${formatNumber(state.xp)} / ${formatNumber(state.xpToNext)}`;
@@ -1095,7 +1327,7 @@
 
         document.getElementById('gain-click').innerText = `+${formatNumber(getClickGain())} $/клик`;
         document.getElementById('gain-auto').innerText = `+${formatNumber(getAutoGain())} $/сек`;
-        document.getElementById('gain-super').innerText + `+${formatNumber(getSuperClickGain())} $/клик`;
+        document.getElementById('gain-super').innerText = `+${formatNumber(getSuperClickGain())} $/клик`;
         document.getElementById('gain-factory').innerText = `+${formatNumber(getFactoryGain())} $/сек`;
         document.getElementById('gain-storage').innerText = `+${formatNumber(getStorageGain())} $/сек`;
 
@@ -1104,6 +1336,30 @@
         document.getElementById('upgrade-superclick-cost').innerText = `Цена: $${formatNumber(state.superClickCost)}`;
         document.getElementById('upgrade-factory-cost').innerText = `Цена: $${formatNumber(state.factoryCost)}`;
         document.getElementById('upgrade-storage-cost').innerText = `Цена: $${formatNumber(state.storageCost)}`;
+
+        // Технологии статусы
+        document.getElementById('lvl-tech1').innerText = state.tech1Lvl > 0 ? 'Изучено' : 'Закрыто';
+        document.getElementById('lvl-tech2').innerText = state.tech2Lvl > 0 ? 'Изучено' : 'Закрыто';
+        document.getElementById('lvl-tech3').innerText = state.tech3Lvl > 0 ? 'Изучено' : 'Закрыто';
+        document.getElementById('cost-tech1').innerText = state.tech1Lvl > 0 ? 'Максимум' : `Цена: $${formatNumber(state.tech1Cost)}`;
+        document.getElementById('cost-tech2').innerText = state.tech2Lvl > 0 ? 'Максимум' : `Цена: $${formatNumber(state.tech2Cost)}`;
+        document.getElementById('cost-tech3').innerText = state.tech3Lvl > 0 ? 'Максимум' : `Цена: $${formatNumber(state.tech3Cost)}`;
+        
+        buyTech1Btn.disabled = state.tech1Lvl > 0 || state.cash < state.tech1Cost;
+        buyTech2Btn.disabled = state.tech2Lvl > 0 || state.cash < state.tech2Cost;
+        buyTech3Btn.disabled = state.tech3Lvl > 0 || state.cash < state.tech3Cost;
+
+        // Территории статусы
+        document.getElementById('lvl-terr1').innerText = state.terr1Lvl > 0 ? 'Захвачено' : 'Закрыто';
+        document.getElementById('lvl-terr2').innerText = state.terr2Lvl > 0 ? 'Захвачено' : 'Закрыто';
+        document.getElementById('lvl-terr3').innerText = state.terr3Lvl > 0 ? 'Захвачено' : 'Закрыто';
+        document.getElementById('cost-terr1').innerText = state.terr1Lvl > 0 ? 'Максимум' : `Цена: $${formatNumber(state.terr1Cost)}`;
+        document.getElementById('cost-terr2').innerText = state.terr2Lvl > 0 ? 'Максимум' : `Цена: $${formatNumber(state.terr2Cost)}`;
+        document.getElementById('cost-terr3').innerText = state.terr3Lvl > 0 ? 'Максимум' : `Цена: $${formatNumber(state.terr3Cost)}`;
+
+        buyTerr1Btn.disabled = state.terr1Lvl > 0 || state.cash < state.terr1Cost;
+        buyTerr2Btn.disabled = state.terr2Lvl > 0 || state.cash < state.terr2Cost;
+        buyTerr3Btn.disabled = state.terr3Lvl > 0 || state.cash < state.terr3Cost;
 
         buyClickBtn.disabled = state.cash < state.clickCost;
         buyAutoBtn.disabled = state.cash < state.autoCost;
