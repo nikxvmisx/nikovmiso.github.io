@@ -50,7 +50,6 @@
             overflow: hidden;
         }
 
-        /* 1. ПАНЕЛЬ СТАТИСТИКИ */
         .stats-panel {
             background: rgba(22, 27, 38, 0.95);
             border: 1px solid rgba(0, 242, 254, 0.25);
@@ -132,11 +131,10 @@
             transition: width 0.3s ease;
         }
 
-        /* 2. ИНТЕРАКТИВНОЕ 3D ОКНО */
         #canvas-container {
             width: 100%;
-            height: 36vh;
-            min-height: 240px;
+            height: 34vh;
+            min-height: 220px;
             border-radius: 18px;
             overflow: hidden;
             background: #0f141d;
@@ -182,7 +180,6 @@
             transform: translateX(-50%) scale(1);
         }
 
-        /* Шкала Комбо / КД */
         .combo-wrapper {
             position: absolute;
             bottom: 10px;
@@ -222,7 +219,6 @@
             background: #57606f !important;
         }
 
-        /* 3. МАГАЗИН УЛУЧШЕНИЙ */
         .shop-header {
             font-size: 11px;
             font-weight: 800;
@@ -443,11 +439,22 @@
             </div>
             <button class="shop-item-btn" id="buy-factory-btn">Улучшить</button>
         </div>
+
+        <div class="shop-item">
+            <div class="shop-item-info">
+                <div class="shop-item-top">
+                    <span class="shop-item-title">Склад Ресурсов</span>
+                    <span class="item-lvl-badge" id="lvl-storage">Ур. 0</span>
+                </div>
+                <div class="shop-item-gain" id="gain-storage">+25 $/сек</div>
+                <div class="shop-item-cost" id="upgrade-storage-cost">Цена: $650</div>
+            </div>
+            <button class="shop-item-btn" id="buy-storage-btn">Улучшить</button>
+        </div>
     </div>
 </div>
 
 <script>
-    // --- TELEGRAM SDK ---
     const tg = window.Telegram?.WebApp;
     if (tg) {
         tg.ready();
@@ -465,7 +472,6 @@
         return (formatted.endsWith('.0') ? formatted.slice(0, -2) : formatted) + suffixes[i];
     }
 
-    // --- ВИБРАЦИЯ ---
     function triggerVibration(type = 'heavy') {
         if (tg && tg.HapticFeedback) {
             if (type === 'heavy') tg.HapticFeedback.impactOccurred('heavy');
@@ -476,7 +482,6 @@
         }
     }
 
-    // --- АУДИО ---
     let audioCtx = null;
     function initAudio() {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -515,7 +520,6 @@
         }
     }
 
-    // --- СОСТОЯНИЕ ИГРЫ ---
     const defaultState = {
         cash: 0,
         cps: 0,
@@ -527,24 +531,24 @@
         autoLvl: 0,
         superClickLvl: 0,
         factoryLvl: 0,
+        storageLvl: 0,
         clickCost: 10,
         autoCost: 25,
         superClickCost: 120,
         factoryCost: 300,
+        storageCost: 650,
         lastSaveTime: Date.now()
     };
 
     let state = { ...defaultState };
     
-    // Переменные FEVER и КД
     let comboVal = 0;
     let isFever = false;
-    let feverActiveTimer = 0;   // Длительность режима Fever (4 сек)
-    let feverCooldownTimer = 0; // КД 3 минуты (180 сек)
+    let feverActiveTimer = 0;   
+    let feverCooldownTimer = 0; 
 
-    // Переменные Three.js
     let scene, camera, renderer, baseGroup, platformMesh, gridMesh;
-    let mainBuildingMesh, buildingRoofUnit, factoryWingMesh, smokeParticles = [], drones = [], lampsGroup;
+    let mainBuildingMesh, buildingRoofUnit, buildingGroup, factoryWingMesh, storageMesh, smokeParticles = [], drones = [], lampsGroup;
     let goldenChest = null;
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
@@ -553,8 +557,48 @@
     function getAutoGain() { return 2 + Math.floor(state.autoLvl * 0.8); }
     function getSuperClickGain() { return 5 + Math.floor(state.superClickLvl * 1.5); }
     function getFactoryGain() { return 10 + Math.floor(state.factoryLvl * 3.0); }
+    function getStorageGain() { return 25 + Math.floor(state.storageLvl * 5.0); }
 
-    // --- 3D СЦЕНА ---
+    // Создание стандартного квадратного окна
+    function createWindow(x, y, z, rotY) {
+        const winGroup = new THREE.Group();
+        
+        const frameGeo = new THREE.BoxGeometry(0.9, 1.1, 0.1);
+        const frameMat = new THREE.MeshStandardMaterial({ color: 0x485460, metalness: 0.8, roughness: 0.3 });
+        const frame = new THREE.Mesh(frameGeo, frameMat);
+        winGroup.add(frame);
+
+        const glassGeo = new THREE.BoxGeometry(0.7, 0.9, 0.12);
+        const glassMat = new THREE.MeshStandardMaterial({ color: 0x00f2fe, emissive: 0x00f2fe, emissiveIntensity: 0.8 });
+        const glass = new THREE.Mesh(glassGeo, glassMat);
+        winGroup.add(glass);
+
+        winGroup.position.set(x, y, z);
+        winGroup.rotation.y = rotY;
+        return winGroup;
+    }
+
+    // Создание входной двери на первом этаже
+    function createDoor(x, y, z, rotY) {
+        const doorGroup = new THREE.Group();
+
+        const portalGeo = new THREE.BoxGeometry(1.6, 2.2, 0.15);
+        const portalMat = new THREE.MeshStandardMaterial({ color: 0x2f3640, metalness: 0.9, roughness: 0.2 });
+        const portal = new THREE.Mesh(portalGeo, portalMat);
+        portal.position.y = 1.1;
+        doorGroup.add(portal);
+
+        const leafGeo = new THREE.BoxGeometry(1.2, 1.9, 0.18);
+        const leafMat = new THREE.MeshStandardMaterial({ color: 0x00f2fe, emissive: 0x00f2fe, emissiveIntensity: 0.4, metalness: 0.5 });
+        const leaf = new THREE.Mesh(leafGeo, leafMat);
+        leaf.position.set(0, 1.05, 0.02);
+        doorGroup.add(leaf);
+
+        doorGroup.position.set(x, y, z);
+        doorGroup.rotation.y = rotY;
+        return doorGroup;
+    }
+
     function init3D() {
         const container = document.getElementById('canvas-container');
 
@@ -570,7 +614,6 @@
         renderer.setClearColor(0x0f141d, 1);
         container.appendChild(renderer.domElement);
 
-        // Освещение (устранено пропадание текстур в темноту)
         const hemiLight = new THREE.HemisphereLight(0xffffff, 0x111625, 1.3);
         scene.add(hemiLight);
 
@@ -581,20 +624,19 @@
         baseGroup = new THREE.Group();
         scene.add(baseGroup);
 
-        // 1. Одиночная металлическая платформа без наложения слоев (нет Z-fighting)
+        // 1. Платформа
         const platformGeo = new THREE.BoxGeometry(16, 0.6, 16);
         const platformMat = new THREE.MeshStandardMaterial({ color: 0x181e2b, roughness: 0.5, metalness: 0.6 });
         platformMesh = new THREE.Mesh(platformGeo, platformMat);
         platformMesh.position.y = -0.3;
         baseGroup.add(platformMesh);
 
-        // Четкая неоновая сетка поверх пола
         gridMesh = new THREE.GridHelper(16, 16, 0x00f2fe, 0x243044);
         gridMesh.position.y = 0.01;
         baseGroup.add(gridMesh);
 
         // 2. Главное здание
-        const buildingGroup = new THREE.Group();
+        buildingGroup = new THREE.Group();
         
         const mainGeo = new THREE.BoxGeometry(6, 6, 6);
         const mainMat = new THREE.MeshStandardMaterial({ color: 0x222a38, roughness: 0.3, metalness: 0.4 });
@@ -602,14 +644,6 @@
         mainBuildingMesh.position.y = 3; 
         buildingGroup.add(mainBuildingMesh);
 
-        // Окна здания
-        const glassGeo = new THREE.BoxGeometry(6.1, 1.0, 4.5);
-        const glassMat = new THREE.MeshStandardMaterial({ color: 0x00f2fe, emissive: 0x00f2fe, emissiveIntensity: 0.5 });
-        const window1 = new THREE.Mesh(glassGeo, glassMat);
-        window1.position.y = 3.5;
-        buildingGroup.add(window1);
-
-        // Аккуратный блок вентиляции на крыше (вместо красной полосы)
         const roofGeo = new THREE.BoxGeometry(2, 0.8, 2);
         const roofMat = new THREE.MeshStandardMaterial({ color: 0x3a475a, metalness: 0.8 });
         buildingRoofUnit = new THREE.Mesh(roofGeo, roofMat);
@@ -618,26 +652,43 @@
 
         baseGroup.add(buildingGroup);
 
-        // 3. Фабрика (Расширение)
+        // 3. Фабрика (Прижата вплотную к правому боку башни: X = 5.0, Z = 0)
         factoryWingMesh = new THREE.Group();
         const facGeo = new THREE.BoxGeometry(4, 4.5, 4.5);
         const facMat = new THREE.MeshStandardMaterial({ color: 0x2f3640, metalness: 0.7 });
         const facBody = new THREE.Mesh(facGeo, facMat);
-        facBody.position.set(5.2, 2.25, 0);
+        facBody.position.set(5.0, 2.25, 0);
         factoryWingMesh.add(facBody);
 
         const pipeGeo = new THREE.CylinderGeometry(0.5, 0.6, 3.5);
         const pipeMat = new THREE.MeshStandardMaterial({ color: 0x57606f });
         const pipe = new THREE.Mesh(pipeGeo, pipeMat);
-        pipe.position.set(5.2, 5.5, -1);
+        pipe.position.set(5.0, 5.5, -1);
         factoryWingMesh.add(pipe);
 
         factoryWingMesh.visible = false;
         baseGroup.add(factoryWingMesh);
 
-        // 4. Фонари
+        // 4. Склад
+        storageMesh = new THREE.Group();
+        const storGeo = new THREE.BoxGeometry(4, 3, 4);
+        const storMat = new THREE.MeshStandardMaterial({ color: 0xeb4d4b, metalness: 0.5, roughness: 0.4 });
+        const storBody = new THREE.Mesh(storGeo, storMat);
+        storBody.position.set(-5.5, 1.5, -5.5);
+        storageMesh.add(storBody);
+
+        const doorGeo = new THREE.BoxGeometry(2, 2.2, 0.1);
+        const doorMat = new THREE.MeshStandardMaterial({ color: 0x1e272e, metalness: 0.8 });
+        const door = new THREE.Mesh(doorGeo, doorMat);
+        door.position.set(-5.5, 1.1, -3.44);
+        storageMesh.add(door);
+
+        storageMesh.visible = false;
+        baseGroup.add(storageMesh);
+
+        // 5. Фонари
         lampsGroup = new THREE.Group();
-        const lampPositions = [[-6.5, -6.5], [6.5, -6.5], [-6.5, 6.5], [6.5, 6.5]];
+        const lampPositions = [[-6.5, 6.5], [6.5, -6.5], [6.5, 6.5]];
         lampPositions.forEach(pos => {
             const poleGeo = new THREE.CylinderGeometry(0.12, 0.12, 2.8);
             const poleMat = new THREE.MeshStandardMaterial({ color: 0x485460 });
@@ -687,43 +738,79 @@
         });
     }
 
-    // --- ПРОКАЧКА ПРОСТРАНСТВА И ЗДАНИЯ ---
+    // ДИНАМИЧЕСКОЕ ОБНОВЛЕНИЕ ЗДАНИЙ И СИММЕТРИЧНЫХ ОКОН С ВХОДОМ НА ПРОТИВОПОЛОЖНОЙ СТОРОНЕ
     function updateModelVisuals() {
         if (!baseGroup) return;
 
-        // 1. Динамическое расширение платформы по уровню (до +60% площади)
         const platformScale = 1 + Math.min((state.level - 1) * 0.05, 0.6);
         platformMesh.scale.set(platformScale, 1, platformScale);
         gridMesh.scale.set(platformScale, 1, platformScale);
 
-        // 2. Увеличение высоты главного здания по уровню
         const heightScale = 1 + Math.min((state.level - 1) * 0.08, 1.2);
         mainBuildingMesh.scale.set(1, heightScale, 1);
         mainBuildingMesh.position.y = 3 * heightScale;
         buildingRoofUnit.position.y = 6 * heightScale + 0.4;
 
-        // 3. Открытие построек
+        // Удаляем старые окна и двери для перегенерации
+        const oldElements = buildingGroup.children.filter(c => c !== mainBuildingMesh && c !== buildingRoofUnit);
+        oldElements.forEach(el => buildingGroup.remove(el));
+
+        const currentBuildingHeight = 6 * heightScale;
+        const floorsCount = Math.max(1, Math.floor(currentBuildingHeight / 2.2));
+
+        for (let i = 0; i < floorsCount; i++) {
+            const floorY = 1.8 + i * 1.8;
+            if (floorY < currentBuildingHeight - 0.5) {
+                
+                // 1. Лицевой фасад (Z = 3.01) — 3 ряда окон
+                buildingGroup.add(createWindow(0, floorY, 3.01, 0));
+                buildingGroup.add(createWindow(-1.6, floorY, 3.01, 0));
+                buildingGroup.add(createWindow(1.6, floorY, 3.01, 0));
+
+                // 2. Левая стенка (X = -3.01) — 3 ряда окон
+                buildingGroup.add(createWindow(-3.01, floorY, 0, -Math.PI / 2));
+                buildingGroup.add(createWindow(-3.01, floorY, -1.6, -Math.PI / 2));
+                buildingGroup.add(createWindow(-3.01, floorY, 1.6, -Math.PI / 2));
+
+                // 3. Задняя стенка (Z = -3.01) — перенесена входная дверь на первый этаж сюда (противоположная сторона от лицевой)
+                if (i === 0) {
+                    buildingGroup.add(createDoor(0, 0, -3.01, Math.PI));
+                    buildingGroup.add(createWindow(-1.6, floorY + 1.2, -3.01, Math.PI));
+                    buildingGroup.add(createWindow(1.6, floorY + 1.2, -3.01, Math.PI));
+                } else {
+                    buildingGroup.add(createWindow(0, floorY, -3.01, Math.PI));
+                    buildingGroup.add(createWindow(-1.6, floorY, -3.01, Math.PI));
+                    buildingGroup.add(createWindow(1.6, floorY, -3.01, Math.PI));
+                }
+
+                // 4. Правая стенка (X = 3.01) — 3 ряда окон
+                buildingGroup.add(createWindow(3.01, floorY, 0, Math.PI / 2));
+                buildingGroup.add(createWindow(3.01, floorY, -1.6, Math.PI / 2));
+                buildingGroup.add(createWindow(3.01, floorY, 1.6, Math.PI / 2));
+            }
+        }
+
         if (factoryWingMesh) factoryWingMesh.visible = (state.factoryLvl > 0);
+        if (storageMesh) storageMesh.visible = (state.storageLvl > 0);
         if (lampsGroup) lampsGroup.visible = (state.superClickLvl > 0);
 
-        // Дроны-рабочие
-        while (drones.length < Math.min(state.autoLvl, 6)) {
+        while (drones.length < Math.min(state.autoLvl, 8)) {
             createDrone();
         }
     }
 
     function createDrone() {
         const droneGroup = new THREE.Group();
-        const bodyGeo = new THREE.BoxGeometry(0.7, 0.35, 0.7);
+        const bodyGeo = new THREE.BoxGeometry(0.6, 0.3, 0.6);
         const bodyMat = new THREE.MeshBasicMaterial({ color: 0x00f2fe });
         const body = new THREE.Mesh(bodyGeo, bodyMat);
         droneGroup.add(body);
 
         droneGroup.userData = {
             angle: Math.random() * Math.PI * 2,
-            speed: 0.015 + Math.random() * 0.015,
-            radius: 7 + Math.random() * 3,
-            height: 4 + Math.random() * 3
+            speed: 0.02 + Math.random() * 0.01,
+            radius: 1.6 + Math.random() * 0.5,
+            height: 4.2 + Math.random() * 1.5
         };
 
         baseGroup.add(droneGroup);
@@ -731,11 +818,14 @@
     }
 
     function updateDrones() {
+        const cornerX = -5.5;
+        const cornerZ = -5.5;
+
         drones.forEach(d => {
             d.userData.angle += d.userData.speed;
-            d.position.x = Math.cos(d.userData.angle) * d.userData.radius;
-            d.position.z = Math.sin(d.userData.angle) * d.userData.radius;
-            d.position.y = d.userData.height + Math.sin(d.userData.angle * 2) * 0.4;
+            d.position.x = cornerX + Math.cos(d.userData.angle) * d.userData.radius;
+            d.position.z = cornerZ + Math.sin(d.userData.angle) * d.userData.radius;
+            d.position.y = d.userData.height + Math.sin(d.userData.angle * 2) * 0.3;
         });
     }
 
@@ -744,7 +834,7 @@
         const smokeGeo = new THREE.BoxGeometry(0.25, 0.25, 0.25);
         const smokeMat = new THREE.MeshBasicMaterial({ color: 0x8a9bb2, transparent: true, opacity: 0.5 });
         const p = new THREE.Mesh(smokeGeo, smokeMat);
-        p.position.set(5.2, 7.5, -1);
+        p.position.set(5.0, 7.5, -1);
         p.userData = { vy: 0.03, opacity: 0.5 };
         scene.add(p);
         smokeParticles.push(p);
@@ -766,14 +856,13 @@
         }
     }
 
-    // --- ЗОЛОТОЙ КЕЙС ---
     function spawnGoldenChest() {
         if (goldenChest) return;
 
         const geo = new THREE.BoxGeometry(1.4, 1.4, 1.4);
         const mat = new THREE.MeshStandardMaterial({ color: 0xff9f1a, emissive: 0xff9f1a, emissiveIntensity: 0.7, metalness: 0.8 });
         goldenChest = new THREE.Mesh(geo, mat);
-        goldenChest.position.set((Math.random() - 0.5) * 10, 12, (Math.random() - 0.5) * 10);
+        goldenChest.position.set((Math.random() - 0.5) * 8, 12, (Math.random() - 0.5) * 8);
         goldenChest.userData = { targetY: 2.5, aliveTime: 0 };
         scene.add(goldenChest);
     }
@@ -793,7 +882,6 @@
         }
     }
 
-    // --- ЛОГИКА ТАПА И ТАЙМЕРЫ FEVER / КД ---
     function handleCanvasClick(event) {
         initAudio();
         const container = document.getElementById('canvas-container');
@@ -820,7 +908,6 @@
             }
         }
 
-        // Обычный тап
         addCombo();
         const currentPower = isFever ? state.clickPower * 5 : state.clickPower;
         state.cash += currentPower;
@@ -834,7 +921,7 @@
     }
 
     function addCombo() {
-        if (isFever || feverCooldownTimer > 0) return; // На КД комбо не набирается
+        if (isFever || feverCooldownTimer > 0) return;
         comboVal = Math.min(100, comboVal + 8);
         if (comboVal >= 100) {
             activateFever();
@@ -853,7 +940,7 @@
 
             if (feverActiveTimer <= 0) {
                 isFever = false;
-                feverCooldownTimer = 180; // Включение КД на 3 минуты (180 секунд)
+                feverCooldownTimer = 180;
                 document.getElementById('canvas-container').classList.remove('fever-active');
                 document.getElementById('fever-badge').classList.remove('active');
                 comboFill.classList.add('cooldown');
@@ -874,7 +961,6 @@
                 comboStatus.innerText = `Заряд FEVER: 0%`;
             }
         } else {
-            // Естественное спадание при простое
             if (comboVal > 0) {
                 comboVal = Math.max(0, comboVal - dt * 15);
             }
@@ -885,7 +971,7 @@
 
     function activateFever() {
         isFever = true;
-        feverActiveTimer = 4; // Длительность Fever — 4 секунды
+        feverActiveTimer = 4;
         comboVal = 0;
         document.getElementById('canvas-container').classList.add('fever-active');
         document.getElementById('fever-badge').classList.add('active');
@@ -914,7 +1000,6 @@
         setTimeout(() => text.remove(), 700);
     }
 
-    // --- UI И СОХРАНЕНИЯ ---
     const cashEl = document.getElementById('cash-val');
     const cpsEl = document.getElementById('cps-val');
     const cpcEl = document.getElementById('cpc-val');
@@ -926,6 +1011,7 @@
     const buyAutoBtn = document.getElementById('buy-auto-btn');
     const buySuperClickBtn = document.getElementById('buy-superclick-btn');
     const buyFactoryBtn = document.getElementById('buy-factory-btn');
+    const buyStorageBtn = document.getElementById('buy-storage-btn');
 
     buyClickBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -971,6 +1057,17 @@
         }
     });
 
+    buyStorageBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (state.cash >= state.storageCost) {
+            state.cash -= state.storageCost;
+            state.cps += getStorageGain();
+            state.storageLvl = (state.storageLvl || 0) + 1;
+            state.storageCost = Math.floor(state.storageCost * 1.40);
+            playSound('buy'); triggerVibration('medium'); updateModelVisuals(); updateUI(); saveGame();
+        }
+    });
+
     document.getElementById('reset-game-btn').addEventListener('click', (e) => {
         e.stopPropagation();
         if (confirm("Сбросить весь прогресс?")) {
@@ -994,21 +1091,25 @@
         document.getElementById('lvl-auto').innerText = `Ур. ${state.autoLvl || 0}`;
         document.getElementById('lvl-super').innerText = `Ур. ${state.superClickLvl || 0}`;
         document.getElementById('lvl-factory').innerText = `Ур. ${state.factoryLvl || 0}`;
+        document.getElementById('lvl-storage').innerText = `Ур. ${state.storageLvl || 0}`;
 
         document.getElementById('gain-click').innerText = `+${formatNumber(getClickGain())} $/клик`;
         document.getElementById('gain-auto').innerText = `+${formatNumber(getAutoGain())} $/сек`;
-        document.getElementById('gain-super').innerText = `+${formatNumber(getSuperClickGain())} $/клик`;
+        document.getElementById('gain-super').innerText + `+${formatNumber(getSuperClickGain())} $/клик`;
         document.getElementById('gain-factory').innerText = `+${formatNumber(getFactoryGain())} $/сек`;
+        document.getElementById('gain-storage').innerText = `+${formatNumber(getStorageGain())} $/сек`;
 
         document.getElementById('upgrade-click-cost').innerText = `Цена: $${formatNumber(state.clickCost)}`;
         document.getElementById('upgrade-auto-cost').innerText = `Цена: $${formatNumber(state.autoCost)}`;
         document.getElementById('upgrade-superclick-cost').innerText = `Цена: $${formatNumber(state.superClickCost)}`;
         document.getElementById('upgrade-factory-cost').innerText = `Цена: $${formatNumber(state.factoryCost)}`;
+        document.getElementById('upgrade-storage-cost').innerText = `Цена: $${formatNumber(state.storageCost)}`;
 
         buyClickBtn.disabled = state.cash < state.clickCost;
         buyAutoBtn.disabled = state.cash < state.autoCost;
         buySuperClickBtn.disabled = state.cash < state.superClickCost;
         buyFactoryBtn.disabled = state.cash < state.factoryCost;
+        buyStorageBtn.disabled = state.cash < state.storageCost;
     }
 
     function saveGame() {
