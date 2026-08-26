@@ -27,8 +27,8 @@
             height: 100%;
             height: 100dvh;
             overflow: hidden;
-            background: #181b29;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0b0e14;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             color: #fff;
             touch-action: none;
             overscroll-behavior: none;
@@ -45,7 +45,7 @@
             max-width: 420px;
             height: 100%;
             height: 100dvh;
-            background: #181b29;
+            background: #0b0e14;
             padding: 12px;
             display: flex;
             flex-direction: column;
@@ -54,65 +54,101 @@
             overflow: hidden;
         }
 
-        /* 1. ПАНЕЛЬ СТАТИСТИКИ */
+        /* 1. ПАНЕЛЬ СТАТИСТИКИ (НЕОН-СТИЛЬ) */
         .stats-panel {
-            background: #23273a;
-            padding: 10px 14px;
-            border-radius: 12px;
+            background: rgba(22, 27, 38, 0.9);
+            border: 1px solid rgba(0, 242, 254, 0.2);
+            padding: 12px 14px;
+            border-radius: 16px;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
             flex-shrink: 0;
-            box-shadow: inset 0 1px 3px rgba(255,255,255,0.05);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.05);
         }
 
-        .stats-row {
+        .stats-main-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .cash-display {
-            font-size: 24px;
-            font-weight: 800;
-            color: #4cd137;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        .cash-box {
+            display: flex;
+            flex-direction: column;
         }
 
-        .cps-display {
-            font-size: 13px;
-            color: #a4b0be;
-            font-weight: 600;
+        .cash-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #7f8c8d;
+            font-weight: 700;
+        }
+
+        .cash-display {
+            font-size: 26px;
+            font-weight: 900;
+            color: #00e676;
+            text-shadow: 0 0 12px rgba(0, 230, 118, 0.35);
+        }
+
+        .income-badges {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
+        }
+
+        .badge-rate {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 8px;
+            background: rgba(0, 242, 254, 0.1);
+            color: #00f2fe;
+            border: 1px solid rgba(0, 242, 254, 0.25);
+        }
+
+        .badge-tap {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 8px;
+            background: rgba(155, 81, 224, 0.1);
+            color: #bd00ff;
+            border: 1px solid rgba(155, 81, 224, 0.25);
         }
 
         .level-bar-container {
             width: 100%;
-            height: 7px;
-            background: #0f111a;
-            border-radius: 4px;
+            height: 6px;
+            background: #141824;
+            border-radius: 6px;
             overflow: hidden;
         }
 
         .level-bar-fill {
             height: 100%;
             width: 0%;
-            background: linear-gradient(90deg, #00a8ff, #9c88ff);
+            background: linear-gradient(90deg, #00f2fe, #4facfe);
+            box-shadow: 0 0 8px #00f2fe;
             transition: width 0.3s ease;
         }
 
         /* 2. ИНТЕРАКТИВНОЕ 3D ОКНО */
         #canvas-container {
             width: 100%;
-            height: 35vh;
-            border-radius: 16px;
+            height: 33vh;
+            border-radius: 18px;
             overflow: hidden;
-            background: #121420;
+            background: radial-gradient(circle at center, #192033 0%, #0d111a 100%);
             position: relative;
             cursor: pointer;
             touch-action: none;
             flex-shrink: 0;
-            border: 2px solid rgba(0, 168, 255, 0.3);
-            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.8), 0 0 10px rgba(0, 168, 255, 0.15);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.9), 0 0 15px rgba(0, 242, 254, 0.1);
         }
 
         .tap-hint {
@@ -120,25 +156,25 @@
             top: 10px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(4px);
-            padding: 4px 12px;
+            background: rgba(11, 14, 20, 0.75);
+            backdrop-filter: blur(6px);
+            padding: 4px 14px;
             border-radius: 20px;
             font-size: 11px;
-            color: #00a8ff;
-            font-weight: 600;
+            color: #00f2fe;
+            font-weight: 700;
             pointer-events: none;
             z-index: 10;
-            border: 1px solid rgba(0, 168, 255, 0.3);
+            border: 1px solid rgba(0, 242, 254, 0.3);
         }
 
         /* 3. МАГАЗИН УЛУЧШЕНИЙ */
         .shop-header {
-            font-size: 12px;
-            font-weight: 700;
-            color: #718093;
+            font-size: 11px;
+            font-weight: 800;
+            color: #8a9bb2;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
             padding: 0 2px;
             flex-shrink: 0;
             display: flex;
@@ -147,9 +183,10 @@
         }
 
         .shop-panel {
-            background: #23273a;
+            background: rgba(22, 27, 38, 0.7);
             padding: 8px;
-            border-radius: 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
             flex: 1;
             overflow-y: auto;
             touch-action: pan-y;
@@ -163,33 +200,64 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #181b29;
+            background: #141824;
             padding: 10px 12px;
-            border-radius: 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
             flex-shrink: 0;
+            transition: border-color 0.2s;
+        }
+
+        .shop-item-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .shop-item-top {
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .shop-item-title {
             font-size: 13px;
+            font-weight: 700;
+            color: #f1f2f6;
+        }
+
+        .item-lvl-badge {
+            font-size: 9px;
+            font-weight: 800;
+            padding: 1px 6px;
+            border-radius: 6px;
+            background: rgba(0, 242, 254, 0.15);
+            color: #00f2fe;
+        }
+
+        .shop-item-gain {
+            font-size: 11px;
+            color: #4cd137;
             font-weight: 600;
         }
 
         .shop-item-cost {
             font-size: 11px;
             color: #a4b0be;
-            margin-top: 2px;
+            font-weight: 500;
         }
 
         .shop-item-btn {
-            padding: 8px 12px;
-            background: #00a8ff;
+            padding: 9px 14px;
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
             border: none;
-            border-radius: 8px;
-            color: #fff;
+            border-radius: 10px;
+            color: #000;
             font-size: 12px;
-            font-weight: 700;
+            font-weight: 800;
             cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
+            box-shadow: 0 2px 10px rgba(0, 242, 254, 0.25);
+            transition: transform 0.1s, opacity 0.2s;
         }
 
         .shop-item-btn:active {
@@ -197,18 +265,19 @@
         }
 
         .shop-item-btn:disabled {
-            background: #353b48;
-            color: #718093;
+            background: #252b3b;
+            color: #57606f;
+            box-shadow: none;
             cursor: not-allowed;
             transform: none;
         }
 
         .reset-btn {
-            background: #e74c3c;
-            color: #fff;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 6px;
+            background: rgba(231, 76, 60, 0.15);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, 0.3);
+            padding: 4px 10px;
+            border-radius: 8px;
             font-size: 10px;
             font-weight: bold;
             cursor: pointer;
@@ -216,13 +285,13 @@
 
         .floating-text {
             position: absolute;
-            font-weight: 800;
-            font-size: 22px;
-            color: #4cd137;
+            font-weight: 900;
+            font-size: 24px;
+            color: #00e676;
             pointer-events: none;
             animation: floatUp 0.7s ease-out forwards;
             z-index: 100;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            text-shadow: 0 0 10px rgba(0, 230, 118, 0.6);
         }
 
         @keyframes floatUp {
@@ -234,13 +303,20 @@
 <body>
 
 <div class="game-card">
+    <!-- ПАНЕЛЬ СТАТИСТИКИ -->
     <div class="stats-panel">
-        <div class="stats-row">
-            <div class="cash-display" id="cash-val">$0</div>
-            <div class="cps-display" id="cps-val">$0 /сек</div>
+        <div class="stats-main-row">
+            <div class="cash-box">
+                <span class="cash-label">Баланс</span>
+                <div class="cash-display" id="cash-val">$0</div>
+            </div>
+            <div class="income-badges">
+                <div class="badge-rate" id="cps-val">+ $0 /сек</div>
+                <div class="badge-tap" id="cpc-val">+ $1 /клик</div>
+            </div>
         </div>
-        <div class="stats-row" style="font-size: 11px; color: #a4b0be; margin-top: 2px;">
-            <span id="level-val">Уровень 1</span>
+        <div class="stats-main-row" style="font-size: 11px; color: #a4b0be;">
+            <span id="level-val" style="font-weight:700; color:#fff;">Уровень 1</span>
             <span id="xp-val">XP: 0 / 100</span>
         </div>
         <div class="level-bar-container">
@@ -248,43 +324,68 @@
         </div>
     </div>
 
+    <!-- 3D ОКНО -->
     <div id="canvas-container">
         <div class="tap-hint">Тапай по 3D-окну!</div>
     </div>
 
+    <!-- МАГАЗИН -->
     <div class="shop-header">
         <span>Улучшения</span>
         <button class="reset-btn" id="reset-game-btn">Сброс</button>
     </div>
     
     <div class="shop-panel">
+        <!-- Клик -->
         <div class="shop-item">
-            <div>
-                <div class="shop-item-title">Сила клика (+1)</div>
+            <div class="shop-item-info">
+                <div class="shop-item-top">
+                    <span class="shop-item-title">Сила клика</span>
+                    <span class="item-lvl-badge" id="lvl-click">Ур. 0</span>
+                </div>
+                <div class="shop-item-gain" id="gain-click">+1 $/клик</div>
                 <div class="shop-item-cost" id="upgrade-click-cost">Цена: $10</div>
             </div>
-            <button class="shop-item-btn" id="buy-click-btn">Купить</button>
+            <button class="shop-item-btn" id="buy-click-btn">Улучшить</button>
         </div>
+
+        <!-- Авто-рабочий -->
         <div class="shop-item">
-            <div>
-                <div class="shop-item-title">Авто-рабочий (+2$/с)</div>
-                <div class="shop-item-cost" id="upgrade-auto-cost">Цена: $50</div>
+            <div class="shop-item-info">
+                <div class="shop-item-top">
+                    <span class="shop-item-title">Авто-рабочий</span>
+                    <span class="item-lvl-badge" id="lvl-auto">Ур. 0</span>
+                </div>
+                <div class="shop-item-gain" id="gain-auto">+2 $/сек</div>
+                <div class="shop-item-cost" id="upgrade-auto-cost">Цена: $25</div>
             </div>
-            <button class="shop-item-btn" id="buy-auto-btn">Купить</button>
+            <button class="shop-item-btn" id="buy-auto-btn">Улучшить</button>
         </div>
+
+        <!-- Супер-клик -->
         <div class="shop-item">
-            <div>
-                <div class="shop-item-title">Супер-Клик (+5)</div>
-                <div class="shop-item-cost" id="upgrade-superclick-cost">Цена: $150</div>
+            <div class="shop-item-info">
+                <div class="shop-item-top">
+                    <span class="shop-item-title">Супер-Клик</span>
+                    <span class="item-lvl-badge" id="lvl-super">Ур. 0</span>
+                </div>
+                <div class="shop-item-gain" id="gain-super">+5 $/клик</div>
+                <div class="shop-item-cost" id="upgrade-superclick-cost">Цена: $120</div>
             </div>
-            <button class="shop-item-btn" id="buy-superclick-btn">Купить</button>
+            <button class="shop-item-btn" id="buy-superclick-btn">Улучшить</button>
         </div>
+
+        <!-- Фабрика -->
         <div class="shop-item">
-            <div>
-                <div class="shop-item-title">Мини-Фабрика (+10$/с)</div>
-                <div class="shop-item-cost" id="upgrade-factory-cost">Цена: $400</div>
+            <div class="shop-item-info">
+                <div class="shop-item-top">
+                    <span class="shop-item-title">Мини-Фабрика</span>
+                    <span class="item-lvl-badge" id="lvl-factory">Ур. 0</span>
+                </div>
+                <div class="shop-item-gain" id="gain-factory">+10 $/сек</div>
+                <div class="shop-item-cost" id="upgrade-factory-cost">Цена: $300</div>
             </div>
-            <button class="shop-item-btn" id="buy-factory-btn">Купить</button>
+            <button class="shop-item-btn" id="buy-factory-btn">Улучшить</button>
         </div>
     </div>
 </div>
@@ -296,8 +397,8 @@
         tg.ready();
         tg.expand();
         if (tg.enableClosingConfirmation) tg.enableClosingConfirmation();
-        if (tg.setHeaderColor) tg.setHeaderColor('#181b29');
-        if (tg.setBackgroundColor) tg.setBackgroundColor('#181b29');
+        if (tg.setHeaderColor) tg.setHeaderColor('#0b0e14');
+        if (tg.setBackgroundColor) tg.setBackgroundColor('#0b0e14');
     }
 
     document.addEventListener('gesturestart', (e) => e.preventDefault());
@@ -332,34 +433,34 @@
         const now = audioCtx.currentTime;
 
         if (type === 'click') {
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(450, now);
-            osc.frequency.exponentialRampToValueAtTime(850, now + 0.08);
-            gain.gain.setValueAtTime(0.8, now);
-            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(500, now);
+            osc.frequency.exponentialRampToValueAtTime(1000, now + 0.07);
+            gain.gain.setValueAtTime(1.5, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.07);
             osc.start(now);
-            osc.stop(now + 0.08);
+            osc.stop(now + 0.07);
         } else if (type === 'buy') {
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(400, now);
+            osc.frequency.exponentialRampToValueAtTime(1100, now + 0.12);
+            gain.gain.setValueAtTime(1.2, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+            osc.start(now);
+            osc.stop(now + 0.12);
+        } else if (type === 'levelup') {
             osc.type = 'triangle';
             osc.frequency.setValueAtTime(400, now);
-            osc.frequency.exponentialRampToValueAtTime(950, now + 0.15);
-            gain.gain.setValueAtTime(0.9, now);
-            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+            osc.frequency.setValueAtTime(650, now + 0.09);
+            osc.frequency.setValueAtTime(950, now + 0.18);
+            gain.gain.setValueAtTime(1.8, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
             osc.start(now);
-            osc.stop(now + 0.15);
-        } else if (type === 'levelup') {
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(350, now);
-            osc.frequency.setValueAtTime(550, now + 0.1);
-            osc.frequency.setValueAtTime(750, now + 0.2);
-            gain.gain.setValueAtTime(1.0, now);
-            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.45);
-            osc.start(now);
-            osc.stop(now + 0.45);
+            osc.stop(now + 0.4);
         }
     }
 
-    // --- НАТИВНАЯ ВИБРАЦИЯ TELEGRAM / BROWSER ---
+    // --- ВИБРАЦИЯ TELEGRAM / BROWSER ---
     function triggerVibration(type = 'light') {
         if (tg && tg.HapticFeedback) {
             if (type === 'medium') tg.HapticFeedback.impactOccurred('medium');
@@ -371,6 +472,7 @@
         }
     }
 
+    // --- СОСТОЯНИЕ ИГРЫ ---
     const defaultState = {
         cash: 0,
         cps: 0,
@@ -378,10 +480,19 @@
         level: 1,
         xp: 0,
         xpToNext: 100,
+        
+        // Уровни прокачки
+        clickLvl: 0,
+        autoLvl: 0,
+        superClickLvl: 0,
+        factoryLvl: 0,
+
+        // Цены (Снижены стартовые стоимости)
         clickCost: 10,
-        autoCost: 50,
-        superClickCost: 150,
-        factoryCost: 400,
+        autoCost: 25,
+        superClickCost: 120,
+        factoryCost: 300,
+        
         lastSaveTime: Date.now()
     };
 
@@ -389,13 +500,19 @@
     let scene, camera, renderer, buildingModel, particles = [];
 
     const particleGeo = new THREE.BoxGeometry(0.3, 0.3, 0.3);
-    const particleMat = new THREE.MeshBasicMaterial({ color: 0xe1b12c });
+    const particleMat = new THREE.MeshBasicMaterial({ color: 0x00f2fe });
+
+    // Динамические функции расчета прибавок
+    function getClickGain() { return 1 + Math.floor(state.clickLvl * 0.4); }
+    function getAutoGain() { return 2 + Math.floor(state.autoLvl * 0.8); }
+    function getSuperClickGain() { return 5 + Math.floor(state.superClickLvl * 1.5); }
+    function getFactoryGain() { return 10 + Math.floor(state.factoryLvl * 3.0); }
 
     function init3D() {
         const container = document.getElementById('canvas-container');
 
         scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x10121a);
+        scene.background = new THREE.Color(0x0d111a);
 
         camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
         camera.position.set(18, 14, 22);
@@ -408,17 +525,17 @@
         const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
         scene.add(ambientLight);
 
-        const dirLight = new THREE.DirectionalLight(0x00a8ff, 2.0);
+        const dirLight = new THREE.DirectionalLight(0x00f2fe, 2.2);
         dirLight.position.set(10, 20, 15);
         scene.add(dirLight);
 
         const podiumGeo = new THREE.CylinderGeometry(8, 9, 0.8, 32);
         const podiumMat = new THREE.MeshStandardMaterial({ 
-            color: 0x181b29, 
+            color: 0x141824, 
             roughness: 0.3,
             metalness: 0.8,
-            emissive: 0x00a8ff,
-            emissiveIntensity: 0.2
+            emissive: 0x00f2fe,
+            emissiveIntensity: 0.25
         });
         const podium = new THREE.Mesh(podiumGeo, podiumMat);
         podium.position.y = -0.4;
@@ -465,7 +582,7 @@
     function createFallbackBuilding() {
         const group = new THREE.Group();
         const geo = new THREE.BoxGeometry(8, 7, 10);
-        const mat = new THREE.MeshStandardMaterial({ color: 0x2e86de, metalness: 0.2 });
+        const mat = new THREE.MeshStandardMaterial({ color: 0x00a8ff, metalness: 0.3 });
         const mesh = new THREE.Mesh(geo, mat);
         mesh.position.y = 3.5;
         group.add(mesh);
@@ -528,7 +645,7 @@
         if (state.xp >= state.xpToNext) {
             state.xp -= state.xpToNext;
             state.level++;
-            state.xpToNext = Math.floor(state.xpToNext * 1.5);
+            state.xpToNext = Math.floor(state.xpToNext * 1.4);
             playSound('levelup');
             triggerVibration('success');
             updateModelVisuals();
@@ -562,8 +679,10 @@
         setTimeout(() => text.remove(), 700);
     }
 
+    // --- ЭЛЕМЕНТЫ UI ---
     const cashEl = document.getElementById('cash-val');
     const cpsEl = document.getElementById('cps-val');
+    const cpcEl = document.getElementById('cpc-val');
     const levelEl = document.getElementById('level-val');
     const xpEl = document.getElementById('xp-val');
     const xpFillEl = document.getElementById('xp-fill');
@@ -574,13 +693,15 @@
     const buyFactoryBtn = document.getElementById('buy-factory-btn');
     const resetBtn = document.getElementById('reset-game-btn');
 
+    // КЛИК УЛУЧШЕНИЕ
     buyClickBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         initAudio();
         if (state.cash >= state.clickCost) {
             state.cash -= state.clickCost;
-            state.clickPower += 1;
-            state.clickCost = Math.floor(state.clickCost * 1.5);
+            state.clickPower += getClickGain();
+            state.clickLvl = (state.clickLvl || 0) + 1;
+            state.clickCost = Math.floor(state.clickCost * 1.25); // Меньше удорожания (1.25 вместо 1.5)
             playSound('buy');
             triggerVibration('medium');
             updateUI();
@@ -588,13 +709,15 @@
         }
     });
 
+    // АВТО-РАБОЧИЙ
     buyAutoBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         initAudio();
         if (state.cash >= state.autoCost) {
             state.cash -= state.autoCost;
-            state.cps += 2;
-            state.autoCost = Math.floor(state.autoCost * 1.6);
+            state.cps += getAutoGain();
+            state.autoLvl = (state.autoLvl || 0) + 1;
+            state.autoCost = Math.floor(state.autoCost * 1.28); // Меньше удорожания (1.28 вместо 1.6)
             playSound('buy');
             triggerVibration('medium');
             updateUI();
@@ -602,13 +725,15 @@
         }
     });
 
+    // СУПЕР-КЛИК
     buySuperClickBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         initAudio();
         if (state.cash >= state.superClickCost) {
             state.cash -= state.superClickCost;
-            state.clickPower += 5;
-            state.superClickCost = Math.floor(state.superClickCost * 1.7);
+            state.clickPower += getSuperClickGain();
+            state.superClickLvl = (state.superClickLvl || 0) + 1;
+            state.superClickCost = Math.floor(state.superClickCost * 1.30); // Меньше удорожания (1.30 вместо 1.7)
             playSound('buy');
             triggerVibration('medium');
             updateUI();
@@ -616,13 +741,15 @@
         }
     });
 
+    // МИНИ-ФАБРИКА
     buyFactoryBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         initAudio();
         if (state.cash >= state.factoryCost) {
             state.cash -= state.factoryCost;
-            state.cps += 10;
-            state.factoryCost = Math.floor(state.factoryCost * 1.8);
+            state.cps += getFactoryGain();
+            state.factoryLvl = (state.factoryLvl || 0) + 1;
+            state.factoryCost = Math.floor(state.factoryCost * 1.35); // Меньше удорожания (1.35 вместо 1.8)
             playSound('buy');
             triggerVibration('medium');
             updateUI();
@@ -641,17 +768,35 @@
     });
 
     function updateUI() {
+        // Баланс и Потоки
         cashEl.innerText = `$${formatNumber(state.cash)}`;
-        cpsEl.innerText = `$${formatNumber(state.cps)} /сек`;
+        cpsEl.innerText = `+ $${formatNumber(state.cps)} /сек`;
+        cpcEl.innerText = `+ $${formatNumber(state.clickPower)} /клик`;
+        
+        // Уровень и XP
         levelEl.innerText = `Уровень ${state.level}`;
         xpEl.innerText = `XP: ${formatNumber(state.xp)} / ${formatNumber(state.xpToNext)}`;
         xpFillEl.style.width = `${Math.min(100, (state.xp / state.xpToNext) * 100)}%`;
 
+        // Бейджи уровней прокачек
+        document.getElementById('lvl-click').innerText = `Ур. ${state.clickLvl || 0}`;
+        document.getElementById('lvl-auto').innerText = `Ур. ${state.autoLvl || 0}`;
+        document.getElementById('lvl-super').innerText = `Ур. ${state.superClickLvl || 0}`;
+        document.getElementById('lvl-factory').innerText = `Ур. ${state.factoryLvl || 0}`;
+
+        // Прирост от следующей покупки
+        document.getElementById('gain-click').innerText = `+${formatNumber(getClickGain())} $/клик`;
+        document.getElementById('gain-auto').innerText = `+${formatNumber(getAutoGain())} $/сек`;
+        document.getElementById('gain-super').innerText = `+${formatNumber(getSuperClickGain())} $/клик`;
+        document.getElementById('gain-factory').innerText = `+${formatNumber(getFactoryGain())} $/сек`;
+
+        // Цены
         document.getElementById('upgrade-click-cost').innerText = `Цена: $${formatNumber(state.clickCost)}`;
         document.getElementById('upgrade-auto-cost').innerText = `Цена: $${formatNumber(state.autoCost)}`;
         document.getElementById('upgrade-superclick-cost').innerText = `Цена: $${formatNumber(state.superClickCost)}`;
         document.getElementById('upgrade-factory-cost').innerText = `Цена: $${formatNumber(state.factoryCost)}`;
 
+        // Доступность кнопок
         buyClickBtn.disabled = state.cash < state.clickCost;
         buyAutoBtn.disabled = state.cash < state.autoCost;
         buySuperClickBtn.disabled = state.cash < state.superClickCost;
