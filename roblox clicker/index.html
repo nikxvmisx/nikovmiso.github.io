@@ -219,7 +219,6 @@
             background: #57606f !important;
         }
 
-        /* Навигация по вкладкам (Магазин / Технологии / Территории) */
         .tabs-header {
             display: flex;
             gap: 6px;
@@ -572,6 +571,7 @@
 </div>
 
 <script>
+    const SAVE_VERSION = 1; // Версия сохранения для миграции при обновлениях
     const tg = window.Telegram?.WebApp;
     if (tg) {
         tg.ready();
@@ -581,6 +581,7 @@
     }
 
     function formatNumber(num) {
+        if (isNaN(num) || num === null) return "0";
         if (num < 1000) return num.toString();
         const suffixes = ["", "K", "M", "B", "T", "Qa"];
         const i = Math.floor(Math.log10(num) / 3);
@@ -638,6 +639,7 @@
     }
 
     const defaultState = {
+        version: SAVE_VERSION,
         cash: 0,
         cps: 0,
         clickPower: 1,
@@ -654,11 +656,9 @@
         superClickCost: 120,
         factoryCost: 300,
         storageCost: 650,
-        // Технологии
         tech1Lvl: 0, tech1Cost: 500,
         tech2Lvl: 0, tech2Cost: 2000,
         tech3Lvl: 0, tech3Cost: 10000,
-        // Территории
         terr1Lvl: 0, terr1Cost: 1500,
         terr2Lvl: 0, terr2Cost: 7500,
         terr3Lvl: 0, terr3Cost: 35000,
@@ -678,7 +678,6 @@
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
-    // Расчет с учетом глобальных множителей от дерева технологий
     function getGlobalMultiplier() {
         let mult = 1 + (state.tech1Lvl * 0.25);
         if (state.tech3Lvl > 0) mult *= 1.5;
@@ -787,7 +786,6 @@
         baseGroup = new THREE.Group();
         scene.add(baseGroup);
 
-        // 1. Платформа
         const platformGeo = new THREE.BoxGeometry(16, 0.6, 16);
         const platformMat = new THREE.MeshStandardMaterial({ color: 0x181e2b, roughness: 0.5, metalness: 0.6 });
         platformMesh = new THREE.Mesh(platformGeo, platformMat);
@@ -798,7 +796,6 @@
         gridMesh.position.y = 0.01;
         baseGroup.add(gridMesh);
 
-        // Внешнее кольцо территории (Сектор Б)
         const ringGeo = new THREE.BoxGeometry(24, 0.4, 24);
         const ringMat = new THREE.MeshStandardMaterial({ color: 0x111622, roughness: 0.7, metalness: 0.8 });
         outerRingMesh = new THREE.Mesh(ringGeo, ringMat);
@@ -806,7 +803,6 @@
         outerRingMesh.visible = false;
         baseGroup.add(outerRingMesh);
 
-        // 2. Главное здание
         buildingGroup = new THREE.Group();
         const mainGeo = new THREE.BoxGeometry(6, 6, 6);
         const mainMat = new THREE.MeshStandardMaterial({ color: 0x222a38, roughness: 0.3, metalness: 0.4 });
@@ -822,7 +818,6 @@
 
         baseGroup.add(buildingGroup);
 
-        // 3. Фабрика
         factoryWingMesh = new THREE.Group();
         const facGeo = new THREE.BoxGeometry(4, 4.5, 4.5);
         const facMat = new THREE.MeshStandardMaterial({ color: 0x2f3640, metalness: 0.7 });
@@ -839,7 +834,6 @@
         factoryWingMesh.visible = false;
         baseGroup.add(factoryWingMesh);
 
-        // 4. Склад
         storageMesh = new THREE.Group();
         const storGeo = new THREE.BoxGeometry(4, 3, 4);
         const storMat = new THREE.MeshStandardMaterial({ color: 0xeb4d4b, metalness: 0.5, roughness: 0.4 });
@@ -856,7 +850,6 @@
         storageMesh.visible = false;
         baseGroup.add(storageMesh);
 
-        // 5. Фонари
         lampsGroup = new THREE.Group();
         const lampPositions = [[-6.5, 6.5], [6.5, -6.5], [6.5, 6.5]];
         lampPositions.forEach(pos => {
@@ -923,7 +916,10 @@
         buildingRoofUnit.position.y = 6 * heightScale + 0.4;
 
         const oldElements = buildingGroup.children.filter(c => c !== mainBuildingMesh && c !== buildingRoofUnit);
-        oldElements.forEach(el => buildingGroup.remove(el));
+        oldElements.forEach(el => {
+            buildingGroup.remove(el);
+            if (el.geometry) el.geometry.dispose();
+        });
 
         const currentBuildingHeight = 6 * heightScale;
         const floorsCount = Math.max(1, Math.floor(currentBuildingHeight / 2.2));
@@ -1019,6 +1015,8 @@
 
             if (p.userData.opacity <= 0) {
                 scene.remove(p);
+                p.geometry.dispose();
+                p.material.dispose();
                 smokeParticles.splice(i, 1);
             }
         }
@@ -1046,6 +1044,8 @@
         goldenChest.userData.aliveTime += 1;
         if (goldenChest.userData.aliveTime > 600) {
             scene.remove(goldenChest);
+            goldenChest.geometry.dispose();
+            goldenChest.material.dispose();
             goldenChest = null;
         }
     }
@@ -1069,6 +1069,8 @@
                 playSound('gold');
                 triggerVibration('heavy');
                 scene.remove(goldenChest);
+                goldenChest.geometry.dispose();
+                goldenChest.material.dispose();
                 goldenChest = null;
                 updateUI();
                 saveGame();
@@ -1100,7 +1102,7 @@
         const comboFill = document.getElementById('combo-fill');
         const comboStatus = document.getElementById('combo-status');
         let cdMax = 180;
-        if (state.tech3Lvl > 0) cdMax = 120; // Ускоренный КД от технологий
+        if (state.tech3Lvl > 0) cdMax = 120;
 
         if (isFever) {
             feverActiveTimer -= dt;
@@ -1241,7 +1243,6 @@
         }
     });
 
-    // Обработка дерева технологий
     buyTech1Btn.addEventListener('click', (e) => {
         e.stopPropagation();
         if (state.cash >= state.tech1Cost && state.tech1Lvl === 0) {
@@ -1269,7 +1270,6 @@
         }
     });
 
-    // Обработка расширения территорий
     buyTerr1Btn.addEventListener('click', (e) => {
         e.stopPropagation();
         if (state.cash >= state.terr1Cost && state.terr1Lvl === 0) {
@@ -1293,7 +1293,7 @@
         if (state.cash >= state.terr3Cost && state.terr3Lvl === 0) {
             state.cash -= state.terr3Cost;
             state.terr3Lvl = 1;
-            state.level += 3; // Мощный буст уровня базы
+            state.level += 3;
             playSound('buy'); triggerVibration('success'); updateModelVisuals(); updateUI(); saveGame();
         }
     });
@@ -1337,7 +1337,6 @@
         document.getElementById('upgrade-factory-cost').innerText = `Цена: $${formatNumber(state.factoryCost)}`;
         document.getElementById('upgrade-storage-cost').innerText = `Цена: $${formatNumber(state.storageCost)}`;
 
-        // Технологии статусы
         document.getElementById('lvl-tech1').innerText = state.tech1Lvl > 0 ? 'Изучено' : 'Закрыто';
         document.getElementById('lvl-tech2').innerText = state.tech2Lvl > 0 ? 'Изучено' : 'Закрыто';
         document.getElementById('lvl-tech3').innerText = state.tech3Lvl > 0 ? 'Изучено' : 'Закрыто';
@@ -1349,7 +1348,6 @@
         buyTech2Btn.disabled = state.tech2Lvl > 0 || state.cash < state.tech2Cost;
         buyTech3Btn.disabled = state.tech3Lvl > 0 || state.cash < state.tech3Cost;
 
-        // Территории статусы
         document.getElementById('lvl-terr1').innerText = state.terr1Lvl > 0 ? 'Захвачено' : 'Закрыто';
         document.getElementById('lvl-terr2').innerText = state.terr2Lvl > 0 ? 'Захвачено' : 'Закрыто';
         document.getElementById('lvl-terr3').innerText = state.terr3Lvl > 0 ? 'Захвачено' : 'Закрыто';
@@ -1376,13 +1374,25 @@
     function loadGame() {
         const saved = localStorage.getItem('tycoon3d_save');
         if (saved) {
-            Object.assign(state, JSON.parse(saved));
-            if (state.lastSaveTime && state.cps > 0) {
-                const elapsedSec = Math.floor((Date.now() - state.lastSaveTime) / 1000);
-                if (elapsedSec > 3) {
-                    const offlineEarnings = elapsedSec * state.cps;
-                    state.cash += offlineEarnings;
+            try {
+                const parsed = JSON.parse(saved);
+                // Миграция сохранений: если версия старая, аккуратно мёрджим с дефолтным стейтом
+                if (parsed.version === SAVE_VERSION) {
+                    Object.assign(state, parsed);
+                } else {
+                    Object.assign(state, parsed);
+                    state.version = SAVE_VERSION;
                 }
+
+                if (state.lastSaveTime && state.cps > 0) {
+                    const elapsedSec = Math.floor((Date.now() - state.lastSaveTime) / 1000);
+                    if (elapsedSec > 3) {
+                        const offlineEarnings = elapsedSec * state.cps;
+                        state.cash += offlineEarnings;
+                    }
+                }
+            } catch (e) {
+                console.error("Ошибка загрузки сохранения, используется дефолтное.", e);
             }
         }
         updateModelVisuals();
