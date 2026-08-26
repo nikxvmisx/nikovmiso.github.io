@@ -24,7 +24,7 @@
             height: 100%;
             height: 100dvh;
             overflow: hidden;
-            background: #0b0e14;
+            background: var(--bg-main, #0b0e14);
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             color: #fff;
             touch-action: none;
@@ -36,23 +36,239 @@
             align-items: center;
         }
 
+        /* 6 ЦВЕТОВЫХ ТЕМ ОФОРМЛЕНИЯ */
+        body.theme-neon {
+            --bg-main: #0b0e14;
+            --accent: #00f2fe;
+            --panel-bg: rgba(22, 27, 38, 0.95);
+        }
+        body.theme-toxic {
+            --bg-main: #0c140b;
+            --accent: #00ff66;
+            --panel-bg: rgba(18, 38, 22, 0.95);
+        }
+        body.theme-night {
+            --bg-main: #080710;
+            --accent: #a855f7;
+            --panel-bg: rgba(24, 20, 38, 0.95);
+        }
+        body.theme-matrix {
+            --bg-main: #020604;
+            --accent: #22c55e;
+            --panel-bg: rgba(5, 20, 10, 0.95);
+        }
+        body.theme-retro {
+            --bg-main: #140814;
+            --accent: #ec4899;
+            --panel-bg: rgba(35, 15, 35, 0.95);
+        }
+        body.theme-gold {
+            --bg-main: #141008;
+            --accent: #eab308;
+            --panel-bg: rgba(35, 28, 10, 0.95);
+        }
+
         .game-card {
             width: 100%;
             max-width: 420px;
             height: 100%;
             height: 100dvh;
-            background: #0b0e14;
+            background: var(--bg-main);
             padding: 12px;
             display: flex;
             flex-direction: column;
             gap: 10px;
             position: relative;
             overflow: hidden;
+            transition: background 0.3s;
+        }
+
+        /* Кнопка меню в углу экрана (Гамбургер) */
+        .cyber-menu-btn {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            width: 40px;
+            height: 40px;
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 0 10px var(--accent);
+            backdrop-filter: blur(4px);
+        }
+
+        .cyber-menu-btn span {
+            display: block;
+            width: 20px;
+            height: 2px;
+            background: var(--accent);
+            transition: 0.3s;
+        }
+
+        /* Затемнение фона при открытом меню */
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(2px);
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.3s ease;
+            z-index: 1001;
+        }
+
+        .menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Выезжающая боковая панель */
+        .side-menu {
+            position: fixed;
+            top: 0;
+            right: -280px;
+            width: 260px;
+            height: 100%;
+            background: #0b0f19;
+            border-left: 1px solid #1e293b;
+            box-shadow: -5px 0 25px rgba(0, 0, 0, 0.5);
+            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1002;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .side-menu.active {
+            right: 0;
+        }
+
+        .menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #1e293b;
+            padding-bottom: 15px;
+            color: #f8fafc;
+            font-family: monospace;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 28px;
+            cursor: pointer;
+        }
+
+        .menu-content {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .menu-item {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid #334155;
+            color: #f8fafc;
+            padding: 12px 16px;
+            border-radius: 8px;
+            text-align: left;
+            text-decoration: none;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: block;
+        }
+
+        .menu-item:hover {
+            background: rgba(0, 240, 255, 0.1);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Модальное окно настроек тем */
+        .settings-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.3s;
+            z-index: 1003;
+        }
+
+        .settings-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .settings-content {
+            background: #0f172a;
+            border: 1px solid var(--accent);
+            padding: 20px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 340px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            color: #f8fafc;
+            text-align: center;
+        }
+
+        .theme-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin: 15px 0;
+        }
+
+        .theme-btn {
+            background: #1e293b;
+            border: 1px solid #475569;
+            color: #fff;
+            padding: 10px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: 0.2s;
+        }
+
+        .theme-btn:hover {
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .close-settings-btn {
+            background: #334155;
+            border: none;
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
         }
 
         .stats-panel {
-            background: rgba(22, 27, 38, 0.95);
-            border: 1px solid rgba(0, 242, 254, 0.25);
+            background: var(--panel-bg);
+            border: 1px solid var(--accent);
             padding: 12px 14px;
             border-radius: 16px;
             display: flex;
@@ -82,7 +298,7 @@
         }
 
         .cash-display {
-            font-size: 26px;
+            font-size: 24px;
             font-weight: 900;
             color: #00e676;
             text-shadow: 0 0 12px rgba(0, 230, 118, 0.35);
@@ -101,8 +317,8 @@
             padding: 3px 8px;
             border-radius: 8px;
             background: rgba(0, 242, 254, 0.1);
-            color: #00f2fe;
-            border: 1px solid rgba(0, 242, 254, 0.25);
+            color: var(--accent);
+            border: 1px solid var(--accent);
         }
 
         .badge-tap {
@@ -126,15 +342,15 @@
         .level-bar-fill {
             height: 100%;
             width: 0%;
-            background: linear-gradient(90deg, #00f2fe, #4facfe);
-            box-shadow: 0 0 8px #00f2fe;
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
             transition: width 0.3s ease;
         }
 
         #canvas-container {
             width: 100%;
-            height: 30vh;
-            min-height: 200px;
+            height: 26vh;
+            min-height: 180px;
             border-radius: 18px;
             overflow: hidden;
             background: #0f141d;
@@ -142,9 +358,8 @@
             cursor: pointer;
             touch-action: none;
             flex-shrink: 0;
-            border: 1.5px solid rgba(0, 242, 254, 0.3);
+            border: 1.5px solid var(--accent);
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
-            transition: border-color 0.3s, box-shadow 0.3s;
         }
 
         #canvas-container.fever-active {
@@ -211,12 +426,8 @@
         .combo-fill {
             height: 100%;
             width: 0%;
-            background: linear-gradient(90deg, #00f2fe, #ff9f1a, #ff3838);
+            background: linear-gradient(90deg, var(--accent), #ff9f1a, #ff3838);
             transition: width 0.1s linear;
-        }
-
-        .combo-fill.cooldown {
-            background: #57606f !important;
         }
 
         .tabs-header {
@@ -241,8 +452,8 @@
 
         .tab-btn.active {
             background: rgba(0, 242, 254, 0.15);
-            color: #00f2fe;
-            border-color: rgba(0, 242, 254, 0.4);
+            color: var(--accent);
+            border-color: var(--accent);
             box-shadow: 0 0 10px rgba(0, 242, 254, 0.15);
         }
 
@@ -311,7 +522,7 @@
             padding: 1px 6px;
             border-radius: 6px;
             background: rgba(0, 242, 254, 0.15);
-            color: #00f2fe;
+            color: var(--accent);
         }
 
         .shop-item-gain {
@@ -328,7 +539,7 @@
 
         .shop-item-btn {
             padding: 9px 14px;
-            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+            background: linear-gradient(135deg, var(--accent) 0%, #4facfe 100%);
             border: none;
             border-radius: 10px;
             color: #000;
@@ -348,6 +559,11 @@
             transform: none;
         }
 
+        .action-buttons-row {
+            display: flex;
+            gap: 6px;
+        }
+
         .reset-btn {
             background: rgba(231, 76, 60, 0.15);
             color: #e74c3c;
@@ -357,6 +573,23 @@
             font-size: 10px;
             font-weight: bold;
             cursor: pointer;
+        }
+
+        .reborn-btn {
+            background: rgba(168, 85, 247, 0.2);
+            color: #d8b4fe;
+            border: 1px solid rgba(168, 85, 247, 0.4);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .reborn-btn:hover {
+            background: rgba(168, 85, 247, 0.4);
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
         }
 
         .floating-text {
@@ -382,13 +615,51 @@
         }
     </style>
 </head>
-<body>
+<body class="theme-neon">
+
+<!-- КНОПКА МЕНЮ (ТРИ ПОЛОСКИ) В УГЛУ ЭКРАНА -->
+<button id="menu-btn" class="cyber-menu-btn" aria-label="Открыть меню">
+    <span></span>
+    <span></span>
+    <span></span>
+</button>
+
+<!-- ЗАТЕМНЕНИЕ ФОНА -->
+<div id="menu-overlay" class="menu-overlay"></div>
+
+<!-- ВЫЕЗЖАЮЩАЯ БОКОВАЯ ПАНЕЛЬ -->
+<div id="side-menu" class="side-menu">
+    <div class="menu-header">
+        <h3>Меню</h3>
+        <button id="close-btn" class="close-btn">&times;</button>
+    </div>
+    <div class="menu-content">
+        <button class="menu-item" id="open-settings">⚙️ Выбор темы</button>
+        <a href="https://t.me/nikxvmisx" target="_blank" class="menu-item">📢 Канал автора</a>
+    </div>
+</div>
+
+<!-- МОДАЛЬНОЕ ОКНО НАСТРОЕК ТЕМ -->
+<div id="settings-modal" class="settings-modal">
+    <div class="settings-content">
+        <h3>Выбор темы</h3>
+        <div class="theme-options">
+            <button class="theme-btn" data-theme="neon">Неоновый</button>
+            <button class="theme-btn" data-theme="toxic">Токсичный</button>
+            <button class="theme-btn" data-theme="night">Ночной</button>
+            <button class="theme-btn" data-theme="matrix">Матрица</button>
+            <button class="theme-btn" data-theme="retro">Ретровижн</button>
+            <button class="theme-btn" data-theme="gold">Золотой</button>
+        </div>
+        <button id="close-settings" class="close-settings-btn">Закрыть</button>
+    </div>
+</div>
 
 <div class="game-card">
     <div class="stats-panel">
         <div class="stats-main-row">
             <div class="cash-box">
-                <span class="cash-label">Баланс</span>
+                <span class="cash-label" id="reborn-tier-label">Баланс (Престиж x0)</span>
                 <div class="cash-display" id="cash-val">$0</div>
             </div>
             <div class="income-badges">
@@ -425,7 +696,10 @@
 
     <div class="shop-header">
         <span id="panel-title">Улучшения Базы</span>
-        <button class="reset-btn" id="reset-game-btn">Сброс</button>
+        <div class="action-buttons-row">
+            <button class="reborn-btn" id="reborn-game-btn">🔄 Престиж</button>
+            <button class="reset-btn" id="reset-game-btn">Сброс</button>
+        </div>
     </div>
     
     <!-- ПАНЕЛЬ 1: МАГАЗИН ФАБРИКИ -->
@@ -571,7 +845,7 @@
 </div>
 
 <script>
-    const SAVE_VERSION = 1; // Версия сохранения для миграции при обновлениях
+    const SAVE_VERSION = 2;
     const tg = window.Telegram?.WebApp;
     if (tg) {
         tg.ready();
@@ -579,6 +853,52 @@
         if (tg.setHeaderColor) tg.setHeaderColor('#0b0e14');
         if (tg.setBackgroundColor) tg.setBackgroundColor('#0b0e14');
     }
+
+    const menuBtn = document.getElementById('menu-btn');
+    const closeBtn = document.getElementById('close-btn');
+    const sideMenu = document.getElementById('side-menu');
+    const menuOverlay = document.getElementById('menu-overlay');
+
+    const openSettings = document.getElementById('open-settings');
+    const settingsModal = document.getElementById('settings-modal');
+    const closeSettings = document.getElementById('close-settings');
+    const themeButtons = document.querySelectorAll('.theme-btn');
+
+    function toggleMenu() {
+        sideMenu.classList.toggle('active');
+        menuOverlay.classList.toggle('active');
+    }
+
+    menuBtn.addEventListener('click', toggleMenu);
+    closeBtn.addEventListener('click', toggleMenu);
+    menuOverlay.addEventListener('click', toggleMenu);
+
+    openSettings.addEventListener('click', () => {
+        toggleMenu();
+        settingsModal.classList.add('active');
+    });
+
+    closeSettings.addEventListener('click', () => {
+        settingsModal.classList.remove('active');
+    });
+
+    themeButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            const theme = e.target.getAttribute('data-theme');
+            applyTheme(theme);
+            settingsModal.classList.remove('active');
+        });
+    });
+
+    function applyTheme(themeName) {
+        document.body.className = `theme-${themeName}`;
+        localStorage.setItem('game_theme', themeName);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const savedTheme = localStorage.getItem('game_theme') || 'neon';
+        applyTheme(savedTheme);
+    });
 
     function formatNumber(num) {
         if (isNaN(num) || num === null) return "0";
@@ -646,6 +966,7 @@
         level: 1,
         xp: 0,
         xpToNext: 100,
+        prestigeLevel: 0, // Перерождение
         clickLvl: 0,
         autoLvl: 0,
         superClickLvl: 0,
@@ -681,7 +1002,9 @@
     function getGlobalMultiplier() {
         let mult = 1 + (state.tech1Lvl * 0.25);
         if (state.tech3Lvl > 0) mult *= 1.5;
-        return mult;
+        // Бонус за перерождение: +100% (x2) за каждый уровень престижа
+        let prestigeMult = 1 + (state.prestigeLevel * 1.0);
+        return mult * prestigeMult;
     }
 
     function getClickGain() { 
@@ -1115,7 +1438,6 @@
                 feverCooldownTimer = cdMax;
                 document.getElementById('canvas-container').classList.remove('fever-active');
                 document.getElementById('fever-badge').classList.remove('active');
-                comboFill.classList.add('cooldown');
             }
         } else if (feverCooldownTimer > 0) {
             feverCooldownTimer -= dt;
@@ -1128,7 +1450,6 @@
             comboStatus.innerText = `⏳ КД FEVER: ${formattedTime}`;
 
             if (feverCooldownTimer <= 0) {
-                comboFill.classList.remove('cooldown');
                 comboVal = 0;
                 comboStatus.innerText = `Заряд FEVER: 0%`;
             }
@@ -1152,7 +1473,9 @@
     }
 
     function addXP(amount) {
-        state.xp += amount;
+        // Ускорение прокачки опыта за счет престижа (+50% за уровень)
+        let bonusXp = amount * (1 + state.prestigeLevel * 0.5);
+        state.xp += bonusXp;
         if (state.xp >= state.xpToNext) {
             state.xp -= state.xpToNext;
             state.level++;
@@ -1298,11 +1621,50 @@
         }
     });
 
+    // ЛОГИКА ПЕРЕРОЖДЕНИЯ (ПРЕСТИЖА)
+    document.getElementById('reborn-game-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        let cost = 100000;
+        if (state.cash >= cost) {
+            if (confirm("Совершить перерождение? Сбросится прогресс фабрики и деньги, но вы получите +1 уровень престижа (+100% ко всем доходам и ускорение опыта навсегда)!")) {
+                state.prestigeLevel++;
+                state.cash = 0;
+                state.level = 1;
+                state.xp = 0;
+                state.xpToNext = 100;
+                state.clickLvl = 0;
+                state.autoLvl = 0;
+                state.superClickLvl = 0;
+                state.factoryLvl = 0;
+                state.storageLvl = 0;
+                state.clickCost = 10;
+                state.autoCost = 25;
+                state.superClickCost = 120;
+                state.factoryCost = 300;
+                state.storageCost = 650;
+                state.tech1Lvl = 0;
+                state.tech2Lvl = 0;
+                state.tech3Lvl = 0;
+                state.terr1Lvl = 0;
+                state.terr2Lvl = 0;
+                state.terr3Lvl = 0;
+                drones = [];
+                triggerVibration('success');
+                updateModelVisuals();
+                updateUI();
+                saveGame();
+            }
+        } else {
+            alert("Для перерождения нужно минимум $100K!");
+        }
+    });
+
     document.getElementById('reset-game-btn').addEventListener('click', (e) => {
         e.stopPropagation();
-        if (confirm("Сбросить весь прогресс?")) {
+        if (confirm("Сбросить абсолютно весь прогресс, включая престиж?")) {
             localStorage.removeItem('tycoon3d_save');
             state = { ...defaultState, lastSaveTime: Date.now() };
+            drones = [];
             updateModelVisuals();
             updateUI();
         }
@@ -1312,6 +1674,7 @@
         state.cps = getAutoGain() + getFactoryGain() + getStorageGain();
 
         cashEl.innerText = `$${formatNumber(state.cash)}`;
+        document.getElementById('reborn-tier-label').innerText = `Баланс (Престиж x${state.prestigeLevel})`;
         cpsEl.innerText = `+ $${formatNumber(state.cps)} /сек`;
         cpcEl.innerText = `+ $${formatNumber(getClickGain() * (isFever ? 5 : 1))} /клик`;
         
@@ -1376,7 +1739,6 @@
         if (saved) {
             try {
                 const parsed = JSON.parse(saved);
-                // Миграция сохранений: если версия старая, аккуратно мёрджим с дефолтным стейтом
                 if (parsed.version === SAVE_VERSION) {
                     Object.assign(state, parsed);
                 } else {
