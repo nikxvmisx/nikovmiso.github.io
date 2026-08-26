@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Roblox 3D Tycoon Pro</title>
+    <!-- Three.js и загрузчики -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            height: 100dvh;
+            overflow: hidden;
+            background: #181b29;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+            touch-action: none;
+            overscroll-behavior: none;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .game-card {
+            width: 100%;
+            max-width: 420px;
+            height: 100%;
+            height: 100dvh;
+            background: #181b29;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 1. ПАНЕЛЬ СТАТИСТИКИ */
+        .stats-panel {
+            background: #23273a;
+            padding: 10px 14px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex-shrink: 0;
+            box-shadow: inset 0 1px 3px rgba(255,255,255,0.05);
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cash-display {
+            font-size: 24px;
+            font-weight: 800;
+            color: #4cd137;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .cps-display {
+            font-size: 13px;
+            color: #a4b0be;
+            font-weight: 600;
+        }
+
+        .level-bar-container {
+            width: 100%;
+            height: 7px;
+            background: #0f111a;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .level-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #00a8ff, #9c88ff);
+            transition: width 0.3s ease;
+        }
+
+        /* 2. ИНТЕРАКТИВНОЕ 3D ОКНО */
+        #canvas-container {
+            width: 100%;
+            height: 35vh;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #121420;
+            position: relative;
+            cursor: pointer;
+            touch-action: none;
+            flex-shrink: 0;
+            border: 2px solid rgba(0, 168, 255, 0.3);
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.8), 0 0 10px rgba(0, 168, 255, 0.15);
+        }
+
+        .tap-hint {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            color: #00a8ff;
+            font-weight: 600;
+            pointer-events: none;
+            z-index: 10;
+            border: 1px solid rgba(0, 168, 255, 0.3);
+        }
+
+        /* 3. МАГАЗИН УЛУЧШЕНИЙ */
+        .shop-header {
+            font-size: 12px;
+            font-weight: 700;
+            color: #718093;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0 2px;
+            flex-shrink: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .shop-panel {
+            background: #23273a;
+            padding: 8px;
+            border-radius: 12px;
+            flex: 1;
+            overflow-y: auto;
+            touch-action: pan-y;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .shop-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #181b29;
+            padding: 10px 12px;
+            border-radius: 10px;
+            flex-shrink: 0;
+        }
+
+        .shop-item-title {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .shop-item-cost {
+            font-size: 11px;
+            color: #a4b0be;
+            margin-top: 2px;
+        }
+
+        .shop-item-btn {
+            padding: 8px 12px;
+            background: #00a8ff;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .shop-item-btn:active {
+            transform: scale(0.95);
+        }
+
+        .shop-item-btn:disabled {
+            background: #353b48;
+            color: #718093;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .reset-btn {
+            background: #e74c3c;
+            color: #fff;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* Анимация текста при клике */
+        .floating-text {
+            position: absolute;
+            font-weight: 800;
+            font-size: 22px;
+            color: #4cd137;
+            pointer-events: none;
+            animation: floatUp 0.7s ease-out forwards;
+            z-index: 100;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-40px) scale(1.2); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-card">
+    <!-- СТАТИСТИКА -->
+    <div class="stats-panel">
+        <div class="stats-row">
+            <div class="cash-display" id="cash-val">$0</div>
+            <div class="cps-display" id="cps-val">$0 /сек</div>
+        </div>
+        <div class="stats-row" style="font-size: 11px; color: #a4b0be; margin-top: 2px;">
+            <span id="level-val">Уровень 1</span>
+            <span id="xp-val">XP: 0 / 100</span>
+        </div>
+        <div class="level-bar-container">
+            <div class="level-bar-fill" id="xp-fill"></div>
+        </div>
+    </div>
+
+    <!-- 3D Окно -->
+    <div id="canvas-container">
+        <div class="tap-hint">Тапай по 3D-окну!</div>
+    </div>
+
+    <!-- МАГАЗИН -->
+    <div class="shop-header">
+        <span>Улучшения</span>
+        <button class="reset-btn" id="reset-game-btn">Сброс</button>
+    </div>
+    
+    <div class="shop-panel">
+        <div class="shop-item">
+            <div>
+                <div class="shop-item-title">Сила клика (+1)</div>
+                <div class="shop-item-cost" id="upgrade-click-cost">Цена: $10</div>
+            </div>
+            <button class="shop-item-btn" id="buy-click-btn">Купить</button>
+        </div>
+        <div class="shop-item">
+            <div>
+                <div class="shop-item-title">Авто-рабочий (+2$/с)</div>
+                <div class="shop-item-cost" id="upgrade-auto-cost">Цена: $50</div>
+            </div>
+            <button class="shop-item-btn" id="buy-auto-btn">Купить</button>
+        </div>
+        <div class="shop-item">
+            <div>
+                <div class="shop-item-title">Супер-Клик (+5)</div>
+                <div class="shop-item-cost" id="upgrade-superclick-cost">Цена: $150</div>
+            </div>
+            <button class="shop-item-btn" id="buy-superclick-btn">Купить</button>
+        </div>
+        <div class="shop-item">
+            <div>
+                <div class="shop-item-title">Мини-Фабрика (+10$/с)</div>
+                <div class="shop-item-cost" id="upgrade-factory-cost">Цена: $400</div>
+            </div>
+            <button class="shop-item-btn" id="buy-factory-btn">Купить</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('gesturestart', (e) => e.preventDefault());
+    document.addEventListener('dblclick', (e) => e.preventDefault());
+
+    // --- УТИЛИТА ФОРМАТИРОВАНИЯ ЧИСЕЛ ---
+    function formatNumber(num) {
+        if (num < 1000) return num.toString();
+        const suffixes = ["", "K", "M", "B", "T", "Qa", "Qi"];
+        const i = Math.floor(Math.log10(num) / 3);
+        if (i >= suffixes.length) return num.toExponential(2);
+        const formatted = (num / Math.pow(10, i * 3)).toFixed(1);
+        return (formatted.endsWith('.0') ? formatted.slice(0, -2) : formatted) + suffixes[i];
+    }
+
+    // --- АУДИО СИСТЕМА (Web Audio API - Громкий звук) ---
+    let audioCtx = null;
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+    }
+
+    function playSound(type) {
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        const now = audioCtx.currentTime;
+
+        if (type === 'click') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(450, now);
+            osc.frequency.exponentialRampToValueAtTime(850, now + 0.08);
+            gain.gain.setValueAtTime(0.8, now); // Максимально слышимая громкость
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+            osc.start(now);
+            osc.stop(now + 0.08);
+        } else if (type === 'buy') {
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(400, now);
+            osc.frequency.exponentialRampToValueAtTime(950, now + 0.15);
+            gain.gain.setValueAtTime(0.9, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+            osc.start(now);
+            osc.stop(now + 0.15);
+        } else if (type === 'levelup') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(350, now);
+            osc.frequency.setValueAtTime(550, now + 0.1);
+            osc.frequency.setValueAtTime(750, now + 0.2);
+            gain.gain.setValueAtTime(1.0, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.45);
+            osc.start(now);
+            osc.stop(now + 0.45);
+        }
+    }
+
+    // --- ВИБРООТКЛИК ---
+    function triggerVibration(pattern = 30) {
+        if (navigator && typeof navigator.vibrate === 'function') {
+            try {
+                navigator.vibrate(pattern);
+            } catch (e) {}
+        }
+    }
+
+    // --- СОСТОЯНИЕ ИГРЫ ---
+    const defaultState = {
+        cash: 0,
+        cps: 0,
+        clickPower: 1,
+        level: 1,
+        xp: 0,
+        xpToNext: 100,
+        clickCost: 10,
+        autoCost: 50,
+        superClickCost: 150,
+        factoryCost: 400,
+        lastSaveTime: Date.now()
+    };
+
+    let state = { ...defaultState };
+    let scene, camera, renderer, buildingModel, particles = [];
+
+    // Глобальные геометрии/материалы для частиц
+    const particleGeo = new THREE.BoxGeometry(0.3, 0.3, 0.3);
+    const particleMat = new THREE.MeshBasicMaterial({ color: 0xe1b12c });
+
+    function init3D() {
+        const container = document.getElementById('canvas-container');
+
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x10121a);
+
+        camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+        camera.position.set(18, 14, 22);
+
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+        scene.add(ambientLight);
+
+        const dirLight = new THREE.DirectionalLight(0x00a8ff, 2.0);
+        dirLight.position.set(10, 20, 15);
+        scene.add(dirLight);
+
+        const podiumGeo = new THREE.CylinderGeometry(8, 9, 0.8, 32);
+        const podiumMat = new THREE.MeshStandardMaterial({ 
+            color: 0x181b29, 
+            roughness: 0.3,
+            metalness: 0.8,
+            emissive: 0x00a8ff,
+            emissiveIntensity: 0.2
+        });
+        const podium = new THREE.Mesh(podiumGeo, podiumMat);
+        podium.position.y = -0.4;
+        scene.add(podium);
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 1.2;
+        controls.enableZoom = false;
+
+        const loader = new THREE.GLTFLoader();
+        loader.load('scene.gltf', (gltf) => {
+            buildingModel = gltf.scene;
+            const box = new THREE.Box3().setFromObject(buildingModel);
+            const center = box.getCenter(new THREE.Vector3());
+            buildingModel.position.sub(center);
+            scene.add(buildingModel);
+            updateModelVisuals();
+        }, undefined, () => {
+            createFallbackBuilding();
+        });
+
+        // Клик работает при нажатии в ЛЮБУЮ точку 3D-окна
+        container.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            handleClick(e);
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            updateParticles();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+    }
+
+    function createFallbackBuilding() {
+        const group = new THREE.Group();
+        const geo = new THREE.BoxGeometry(8, 7, 10);
+        const mat = new THREE.MeshStandardMaterial({ color: 0x2e86de, metalness: 0.2 });
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.position.y = 3.5;
+        group.add(mesh);
+        buildingModel = group;
+        scene.add(buildingModel);
+        updateModelVisuals();
+    }
+
+    function create3DParticles() {
+        const pCount = 8;
+        for (let i = 0; i < pCount; i++) {
+            const p = new THREE.Mesh(particleGeo, particleMat);
+            p.position.set(0, 3, 0);
+            p.userData = {
+                vx: (Math.random() - 0.5) * 0.4,
+                vy: Math.random() * 0.4 + 0.2,
+                vz: (Math.random() - 0.5) * 0.4,
+                life: 1.0
+            };
+            scene.add(p);
+            particles.push(p);
+        }
+    }
+
+    function updateParticles() {
+        for (let i = particles.length - 1; i >= 0; i--) {
+            const p = particles[i];
+            p.position.x += p.userData.vx;
+            p.position.y += p.userData.vy;
+            p.position.z += p.userData.vz;
+            p.userData.vy -= 0.02;
+            p.userData.life -= 0.04;
+            p.scale.multiplyScalar(0.95);
+
+            if (p.userData.life <= 0) {
+                scene.remove(p);
+                particles.splice(i, 1);
+            }
+        }
+    }
+
+    function handleClick(event) {
+        initAudio();
+        const container = document.getElementById('canvas-container');
+        const rect = container.getBoundingClientRect();
+
+        state.cash += state.clickPower;
+        addXP(2);
+        triggerClickAnimation();
+        create3DParticles();
+        createFloatingText(event.clientX - rect.left, event.clientY - rect.top);
+        playSound('click');
+        triggerVibration(30);
+        updateUI();
+        saveGame();
+    }
+
+    function addXP(amount) {
+        state.xp += amount;
+        if (state.xp >= state.xpToNext) {
+            state.xp -= state.xpToNext;
+            state.level++;
+            state.xpToNext = Math.floor(state.xpToNext * 1.5);
+            playSound('levelup');
+            triggerVibration([40, 50, 40]);
+            updateModelVisuals();
+        }
+    }
+
+    function updateModelVisuals() {
+        if (!buildingModel) return;
+        const scale = 1 + Math.min((state.level - 1) * 0.03, 0.6);
+        buildingModel.scale.set(scale, scale, scale);
+    }
+
+    function triggerClickAnimation() {
+        if (!buildingModel) return;
+        const currentScale = 1 + Math.min((state.level - 1) * 0.03, 0.6);
+        buildingModel.scale.set(currentScale * 0.93, currentScale * 0.93, currentScale * 0.93);
+        setTimeout(() => {
+            buildingModel.scale.set(currentScale, currentScale, currentScale);
+        }, 80);
+    }
+
+    function createFloatingText(x, y) {
+        const text = document.createElement('div');
+        text.className = 'floating-text';
+        text.innerText = `+$${formatNumber(state.clickPower)}`;
+
+        text.style.left = `${x}px`;
+        text.style.top = `${y}px`;
+
+        document.getElementById('canvas-container').appendChild(text);
+        setTimeout(() => text.remove(), 700);
+    }
+
+    const cashEl = document.getElementById('cash-val');
+    const cpsEl = document.getElementById('cps-val');
+    const levelEl = document.getElementById('level-val');
+    const xpEl = document.getElementById('xp-val');
+    const xpFillEl = document.getElementById('xp-fill');
+    
+    const buyClickBtn = document.getElementById('buy-click-btn');
+    const buyAutoBtn = document.getElementById('buy-auto-btn');
+    const buySuperClickBtn = document.getElementById('buy-superclick-btn');
+    const buyFactoryBtn = document.getElementById('buy-factory-btn');
+    const resetBtn = document.getElementById('reset-game-btn');
+
+    buyClickBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        initAudio();
+        if (state.cash >= state.clickCost) {
+            state.cash -= state.clickCost;
+            state.clickPower += 1;
+            state.clickCost = Math.floor(state.clickCost * 1.5);
+            playSound('buy');
+            triggerVibration(25);
+            updateUI();
+            saveGame();
+        }
+    });
+
+    buyAutoBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        initAudio();
+        if (state.cash >= state.autoCost) {
+            state.cash -= state.autoCost;
+            state.cps += 2;
+            state.autoCost = Math.floor(state.autoCost * 1.6);
+            playSound('buy');
+            triggerVibration(25);
+            updateUI();
+            saveGame();
+        }
+    });
+
+    buySuperClickBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        initAudio();
+        if (state.cash >= state.superClickCost) {
+            state.cash -= state.superClickCost;
+            state.clickPower += 5;
+            state.superClickCost = Math.floor(state.superClickCost * 1.7);
+            playSound('buy');
+            triggerVibration(25);
+            updateUI();
+            saveGame();
+        }
+    });
+
+    buyFactoryBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        initAudio();
+        if (state.cash >= state.factoryCost) {
+            state.cash -= state.factoryCost;
+            state.cps += 10;
+            state.factoryCost = Math.floor(state.factoryCost * 1.8);
+            playSound('buy');
+            triggerVibration(25);
+            updateUI();
+            saveGame();
+        }
+    });
+
+    resetBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (confirm("Сбросить весь прогресс?")) {
+            localStorage.removeItem('tycoon3d_save');
+            state = { ...defaultState, lastSaveTime: Date.now() };
+            updateModelVisuals();
+            updateUI();
+        }
+    });
+
+    function updateUI() {
+        cashEl.innerText = `$${formatNumber(state.cash)}`;
+        cpsEl.innerText = `$${formatNumber(state.cps)} /сек`;
+        levelEl.innerText = `Уровень ${state.level}`;
+        xpEl.innerText = `XP: ${formatNumber(state.xp)} / ${formatNumber(state.xpToNext)}`;
+        xpFillEl.style.width = `${Math.min(100, (state.xp / state.xpToNext) * 100)}%`;
+
+        document.getElementById('upgrade-click-cost').innerText = `Цена: $${formatNumber(state.clickCost)}`;
+        document.getElementById('upgrade-auto-cost').innerText = `Цена: $${formatNumber(state.autoCost)}`;
+        document.getElementById('upgrade-superclick-cost').innerText = `Цена: $${formatNumber(state.superClickCost)}`;
+        document.getElementById('upgrade-factory-cost').innerText = `Цена: $${formatNumber(state.factoryCost)}`;
+
+        buyClickBtn.disabled = state.cash < state.clickCost;
+        buyAutoBtn.disabled = state.cash < state.autoCost;
+        buySuperClickBtn.disabled = state.cash < state.superClickCost;
+        buyFactoryBtn.disabled = state.cash < state.factoryCost;
+    }
+
+    function saveGame() {
+        state.lastSaveTime = Date.now();
+        localStorage.setItem('tycoon3d_save', JSON.stringify(state));
+    }
+
+    function loadGame() {
+        const saved = localStorage.getItem('tycoon3d_save');
+        if (saved) {
+            Object.assign(state, JSON.parse(saved));
+            
+            if (state.lastSaveTime && state.cps > 0) {
+                const now = Date.now();
+                const elapsedSec = Math.floor((now - state.lastSaveTime) / 1000);
+                if (elapsedSec > 3) {
+                    const offlineEarnings = elapsedSec * state.cps;
+                    state.cash += offlineEarnings;
+                    setTimeout(() => {
+                        alert(`С возвращением!\nВы заработали $${formatNumber(offlineEarnings)} за время отсутствия (${elapsedSec} сек)!`);
+                    }, 300);
+                }
+            }
+        }
+        updateModelVisuals();
+        updateUI();
+    }
+
+    setInterval(() => {
+        if (state.cps > 0) {
+            state.cash += state.cps;
+            updateUI();
+            saveGame();
+        }
+    }, 1000);
+
+    window.addEventListener('DOMContentLoaded', () => {
+        init3D();
+        loadGame();
+    });
+</script>
+</body>
+</html>
