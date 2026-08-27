@@ -9,7 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     
     <style>
-        /* ===== СТИЛИ (те же, что были, без изменений) ===== */
+        /* ===== СТИЛИ (с правками для UI) ===== */
         * {
             box-sizing: border-box;
             user-select: none;
@@ -197,13 +197,63 @@
             flex-shrink: 0;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
         }
-        .stats-main-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .cash-box { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
-        .cash-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #7f8c8d; font-weight: 700; width: 100%; }
-        .cash-display { font-size: 24px; font-weight: 900; color: #00e676; text-shadow: 0 0 12px rgba(0, 230, 118, 0.35); white-space: nowrap; }
-        .income-badges { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
-        .badge-rate { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 8px; background: rgba(0, 242, 254, 0.1); color: var(--accent); border: 1px solid var(--accent); white-space: nowrap; }
-        .badge-tap { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 8px; background: rgba(155, 81, 224, 0.1); color: #bd00ff; border: 1px solid rgba(155, 81, 224, 0.25); white-space: nowrap; }
+        .stats-main-row {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+        .cash-box {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+        }
+        .cash-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #7f8c8d;
+            font-weight: 700;
+            width: 100%;
+        }
+        .cash-display {
+            font-size: 24px;
+            font-weight: 900;
+            color: #00e676;
+            text-shadow: 0 0 12px rgba(0, 230, 118, 0.35);
+            white-space: nowrap;
+            flex: 0 1 auto;
+            min-width: 60px;
+        }
+        .income-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            align-items: center;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+        .badge-rate {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 8px;
+            background: rgba(0, 242, 254, 0.1);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            white-space: nowrap;
+        }
+        .badge-tap {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 8px;
+            background: rgba(155, 81, 224, 0.1);
+            color: #bd00ff;
+            border: 1px solid rgba(155, 81, 224, 0.25);
+            white-space: nowrap;
+        }
         .level-bar-container { width: 100%; height: 6px; background: #141824; border-radius: 6px; overflow: hidden; }
         .level-bar-fill { height: 100%; width: 0%; background: var(--accent); box-shadow: 0 0 8px var(--accent); transition: width 0.3s ease; }
         .stats-secondary { display: flex; justify-content: space-between; font-size: 11px; color: #a4b0be; }
@@ -676,17 +726,16 @@
                 localStorage.setItem('unlocked_achievements', JSON.stringify(unlockedAchievements));
                 // Награда
                 state.cash += a.reward;
+                // totalEarned не обновляем, чтобы достижения не завышали статистику заработка (это честнее)
                 triggerVibration('success');
                 playSound('gold');
                 // Показываем уведомление (через всплывающее окно)
                 const container = document.getElementById('canvas-container');
                 const rect = container.getBoundingClientRect();
                 createFloatingText(rect.width/2 - 50, rect.height/2 - 20, `🏆 ${a.name}! +$${formatNumber(a.reward)}`, true);
-                // Если есть модалка достижений открыта, обновим
                 if (achievementsModal.classList.contains('active')) renderAchievements();
                 updateUI();
                 saveGame();
-                // Автоматически отправляем рекорд, если улучшился
                 sendScoreToSupabase();
             }
         });
@@ -712,7 +761,6 @@
             const existing = await checkRes.json();
 
             if (existing.length > 0) {
-                // Обновляем, если новый счёт больше
                 if (score > existing[0].score) {
                     await fetch(`${SUPABASE_URL}/rest/v1/players?id=eq.${userId}`, {
                         method: 'PATCH',
@@ -725,7 +773,6 @@
                     });
                 }
             } else {
-                // Создаём новую запись
                 await fetch(`${SUPABASE_URL}/rest/v1/players`, {
                     method: 'POST',
                     headers: {
@@ -741,20 +788,22 @@
         }
     }
 
-    // ---------- РЕФЕРАЛЬНАЯ СИСТЕМА ----------
+    // ---------- РЕФЕРАЛЬНАЯ СИСТЕМА (исправлена) ----------
     document.getElementById('invite-friend-btn').addEventListener('click', () => {
         toggleMenu();
         const userId = getUserId();
         const botName = 'roflo_clicker_bot'; // ← замени на имя своего бота
         const link = `https://t.me/${botName}?start=ref_${userId}`;
-        if (tg) {
-            tg.sendData(JSON.stringify({ type: 'invite', link }));
-        } else {
-            navigator.clipboard?.writeText(link).then(() => {
+        
+        // Копируем ссылку в буфер обмена (работает везде)
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(link).then(() => {
                 alert('Ссылка скопирована! Отправь её другу.');
             }).catch(() => {
                 prompt('Скопируй ссылку и отправь другу:', link);
             });
+        } else {
+            prompt('Скопируй ссылку и отправь другу:', link);
         }
     });
 
@@ -766,9 +815,7 @@
             const referrerId = parseInt(startParam.replace('ref_', ''));
             const userId = getUserId();
             if (referrerId !== userId) {
-                // Сохраняем в localStorage, что пришёл от реферера
                 localStorage.setItem('referrer', referrerId);
-                // Можно отправить в Supabase для учёта
                 if (SUPABASE_URL && SUPABASE_ANON_KEY) {
                     fetch(`${SUPABASE_URL}/rest/v1/referrals`, {
                         method: 'POST',
@@ -805,7 +852,6 @@
             localStorage.setItem('lastLogin', today);
             localStorage.setItem('streak', newStreak);
 
-            // Показываем уведомление
             setTimeout(() => {
                 const container = document.getElementById('canvas-container');
                 const rect = container.getBoundingClientRect();
@@ -966,7 +1012,7 @@
         }
     }
 
-    // ---------- ИГРОВЫЕ РАСЧЁТЫ ----------
+    // ---------- ИГРОВЫЕ РАСЧЁТЫ (с бонусом за каждые 10 уровней) ----------
     function getGlobalMultiplier() {
         let mult = 1 + (state.tech1Lvl * 0.25) + (state.terr4Lvl * 0.5) + (state.prestigeLevel * 1.0);
         return mult;
@@ -989,27 +1035,32 @@
 
     function getClickGain() {
         let base = (1 + (state.clickLvl * 1)) * getGlobalMultiplier() * getClickMultiplier();
-        return Math.floor(base);
+        let bonus = 1 + Math.floor(state.clickLvl / 10) * 0.5;
+        return Math.floor(base * bonus);
     }
 
     function getAutoGain() {
         let base = 2 + Math.floor(state.autoLvl * 0.8);
-        return Math.floor(base * getPassiveMultiplier() * getGlobalMultiplier());
+        let bonus = 1 + Math.floor(state.autoLvl / 10) * 0.5;
+        return Math.floor(base * getPassiveMultiplier() * getGlobalMultiplier() * bonus);
     }
 
     function getSuperClickGain() {
         let base = (5 + Math.floor(state.superClickLvl * 1.5)) * getGlobalMultiplier() * getClickMultiplier();
-        return Math.floor(base);
+        let bonus = 1 + Math.floor(state.superClickLvl / 10) * 0.5;
+        return Math.floor(base * bonus);
     }
 
     function getFactoryGain() {
         let base = 10 + Math.floor(state.factoryLvl * 3.0);
-        return Math.floor(base * getPassiveMultiplier() * getGlobalMultiplier());
+        let bonus = 1 + Math.floor(state.factoryLvl / 10) * 0.5;
+        return Math.floor(base * getPassiveMultiplier() * getGlobalMultiplier() * bonus);
     }
 
     function getStorageGain() {
         let base = 25 + Math.floor(state.storageLvl * 5.0);
-        return Math.floor(base * getPassiveMultiplier() * getGlobalMultiplier());
+        let bonus = 1 + Math.floor(state.storageLvl / 10) * 0.5;
+        return Math.floor(base * getPassiveMultiplier() * getGlobalMultiplier() * bonus);
     }
 
     function getPrestigeCost() {
@@ -1628,7 +1679,6 @@
                 checkAchievements();
                 sendScoreToSupabase();
 
-                // Визуальный эффект престижа (исправлено)
                 const container = document.getElementById('canvas-container');
                 const rect = container.getBoundingClientRect();
                 createFloatingText(rect.width/2 - 100, rect.height/2 - 30, `✨ ПРЕСТИЖ ${state.prestigeLevel}!`, true);
@@ -1832,7 +1882,6 @@
         loadGame();
         checkDailyBonus();
         checkReferral();
-        // Отправляем рекорд при старте (если есть деньги)
         setTimeout(() => {
             if (state.cash > 0) sendScoreToSupabase();
         }, 2000);
