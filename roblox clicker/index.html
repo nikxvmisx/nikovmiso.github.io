@@ -562,6 +562,7 @@
         .action-buttons-row {
             display: flex;
             gap: 6px;
+            align-items: center;
         }
 
         .reset-btn {
@@ -585,6 +586,7 @@
             font-weight: bold;
             cursor: pointer;
             transition: 0.2s;
+            white-space: nowrap;
         }
 
         .reborn-btn:hover {
@@ -617,7 +619,7 @@
 </head>
 <body class="theme-neon">
 
-<!-- КНОПКА МЕНЮ (ТРИ ПОЛОСКИ) В УГЛУ ЭКРАНА -->
+<!-- КНОПКА МЕНЮ -->
 <button id="menu-btn" class="cyber-menu-btn" aria-label="Открыть меню">
     <span></span>
     <span></span>
@@ -635,7 +637,7 @@
     </div>
     <div class="menu-content">
         <button class="menu-item" id="open-settings">⚙️ Выбор темы</button>
-        <a href="https://t.me/nikxvmisx" target="_blank" class="menu-item">📢 Канал автора[cite: 5]</a>
+        <a href="https://t.me/nikxvmisx" target="_blank" class="menu-item">📢 Канал автора</a>
     </div>
 </div>
 
@@ -854,6 +856,7 @@
         if (tg.setBackgroundColor) tg.setBackgroundColor('#0b0e14');
     }
 
+    // ---------- МЕНЮ И ТЕМЫ ----------
     const menuBtn = document.getElementById('menu-btn');
     const closeBtn = document.getElementById('close-btn');
     const sideMenu = document.getElementById('side-menu');
@@ -900,6 +903,7 @@
         applyTheme(savedTheme);
     });
 
+    // ---------- УТИЛИТЫ ----------
     function formatNumber(num) {
         if (isNaN(num) || num === null) return "0";
         if (num < 1000) return num.toString();
@@ -907,7 +911,6 @@
         let i = Math.floor(Math.log10(num) / 3);
         if (i >= suffixes.length) return num.toExponential(2);
         let formatted = (num / Math.pow(10, i * 3)).toFixed(1);
-        // toFixed can round up to 1000.0 (e.g. 999999 -> "1000.0"), which needs to bump to the next suffix
         if (parseFloat(formatted) >= 1000 && i + 1 < suffixes.length) {
             i += 1;
             formatted = (num / Math.pow(10, i * 3)).toFixed(1);
@@ -963,6 +966,7 @@
         }
     }
 
+    // ---------- СОСТОЯНИЕ ----------
     const defaultState = {
         version: SAVE_VERSION,
         cash: 0,
@@ -998,24 +1002,50 @@
     let feverActiveTimer = 0;   
     let feverCooldownTimer = 0; 
 
+    // ---------- 3D ПЕРЕМЕННЫЕ ----------
     let scene, camera, renderer, baseGroup, platformMesh, gridMesh, outerRingMesh;
     let mainBuildingMesh, buildingRoofUnit, buildingGroup, factoryWingMesh, storageMesh, smokeParticles = [], drones = [], lampsGroup;
     let goldenChest = null;
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
-    // Tech1 = "+25% ко всем доходам" (global), Tech3 = "Ускорение FEVER и X2 клик" (click-only + fever cooldown).
-    // Tech3 used to also silently multiply getGlobalMultiplier by 1.5, giving every income source (not just clicks,
-    // as advertised) an undocumented bonus on top of the x2 click multiplier below. Removed so the tech only does
-    // what its description says.
+    // ---------- ФУНКЦИИ ОЧИСТКИ ВИЗУАЛА ----------
+    function clearDrones() {
+        drones.forEach(d => {
+            baseGroup.remove(d);
+            d.children.forEach(child => {
+                if (child.geometry) child.geometry.dispose();
+                if (child.material) child.material.dispose();
+            });
+        });
+        drones = [];
+    }
+
+    function clearSmoke() {
+        smokeParticles.forEach(p => {
+            scene.remove(p);
+            if (p.geometry) p.geometry.dispose();
+            if (p.material) p.material.dispose();
+        });
+        smokeParticles = [];
+    }
+
+    function clearGoldenChest() {
+        if (goldenChest) {
+            scene.remove(goldenChest);
+            goldenChest.geometry.dispose();
+            goldenChest.material.dispose();
+            goldenChest = null;
+        }
+    }
+
+    // ---------- ИГРОВЫЕ РАСЧЁТЫ ----------
     function getGlobalMultiplier() {
         let mult = 1 + (state.tech1Lvl * 0.25);
         let prestigeMult = 1 + (state.prestigeLevel * 1.0);
         return mult * prestigeMult;
     }
 
-    // Tech2 = "+50% к пассиву (CPS)". CPS = auto + factory + storage, but the bonus was only wired into auto,
-    // so factory/storage silently missed their promised +50%. Centralized here so all three passive sources get it.
     function getPassiveMultiplier() {
         return state.tech2Lvl > 0 ? 1.5 : 1;
     }
@@ -1035,6 +1065,19 @@
     function getFactoryGain() { return Math.floor((10 + Math.floor(state.factoryLvl * 3.0)) * getPassiveMultiplier() * getGlobalMultiplier()); }
     function getStorageGain() { return Math.floor((25 + Math.floor(state.storageLvl * 5.0)) * getPassiveMultiplier() * getGlobalMultiplier()); }
 
+    // ---------- СИСТЕМА ПРЕСТИЖА (НОВАЯ) ----------
+    function getPrestigeCost() {
+        const level = state.prestigeLevel;
+        if (level === 0) return 100000;
+        if (level === 1) return 1200000;
+        if (level === 2) return 15000000;
+        if (level === 3) return 50000000;
+        if (level === 4) return 250000000;
+        // level >= 5: цена удваивается каждый раз
+        return 250000000 * Math.pow(2, level - 4);
+    }
+
+    // ---------- ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ----------
     function switchTab(tabName) {
         document.getElementById('tab-shop-btn').classList.remove('active');
         document.getElementById('tab-tech-btn').classList.remove('active');
@@ -1060,6 +1103,7 @@
         playSound('buy');
     }
 
+    // ---------- 3D МОДЕЛИ ----------
     function createWindow(x, y, z, rotY) {
         const winGroup = new THREE.Group();
         const frameGeo = new THREE.BoxGeometry(0.9, 1.1, 0.1);
@@ -1210,7 +1254,8 @@
         controls.autoRotateSpeed = 0.8;
         controls.enableZoom = false;
 
-        container.addEventListener('pointerdown', handleCanvasClick);
+        // Обработчик клика только на canvas
+        renderer.domElement.addEventListener('pointerdown', handleCanvasClick);
 
         setInterval(spawnGoldenChest, 35000);
 
@@ -1223,7 +1268,7 @@
             controls.update();
             updateSmoke();
             updateDrones();
-            updateGoldenChest();
+            updateGoldenChest(dt);
             handleFeverTimers(dt);
             renderer.render(scene, camera);
         }
@@ -1250,10 +1295,16 @@
         mainBuildingMesh.position.y = 3 * heightScale;
         buildingRoofUnit.position.y = 6 * heightScale + 0.4;
 
+        // Очистка старых окон/дверей
         const oldElements = buildingGroup.children.filter(c => c !== mainBuildingMesh && c !== buildingRoofUnit);
         oldElements.forEach(el => {
             buildingGroup.remove(el);
-            if (el.geometry) el.geometry.dispose();
+            el.traverse(child => {
+                if (child.isMesh) {
+                    if (child.geometry) child.geometry.dispose();
+                    if (child.material) child.material.dispose();
+                }
+            });
         });
 
         const currentBuildingHeight = 6 * heightScale;
@@ -1293,7 +1344,8 @@
         let maxDrones = 8;
         if (state.terr2Lvl > 0) maxDrones = 16;
 
-        while (drones.length < Math.min(state.autoLvl, maxDrones)) {
+        clearDrones();
+        for (let i = 0; i < Math.min(state.autoLvl, maxDrones); i++) {
             createDrone();
         }
     }
@@ -1319,7 +1371,6 @@
     function updateDrones() {
         const cornerX = -5.5;
         const cornerZ = -5.5;
-
         drones.forEach(d => {
             d.userData.angle += d.userData.speed;
             d.position.x = cornerX + Math.cos(d.userData.angle) * d.userData.radius;
@@ -1359,7 +1410,6 @@
 
     function spawnGoldenChest() {
         if (goldenChest) return;
-
         const geo = new THREE.BoxGeometry(1.4, 1.4, 1.4);
         const mat = new THREE.MeshStandardMaterial({ color: 0xff9f1a, emissive: 0xff9f1a, emissiveIntensity: 0.7, metalness: 0.8 });
         goldenChest = new THREE.Mesh(geo, mat);
@@ -1368,16 +1418,14 @@
         scene.add(goldenChest);
     }
 
-    function updateGoldenChest() {
+    function updateGoldenChest(dt) {
         if (!goldenChest) return;
         goldenChest.rotation.y += 0.03;
-
         if (goldenChest.position.y > goldenChest.userData.targetY) {
             goldenChest.position.y -= 0.08;
         }
-
-        goldenChest.userData.aliveTime += 1;
-        if (goldenChest.userData.aliveTime > 600) {
+        goldenChest.userData.aliveTime += dt;
+        if (goldenChest.userData.aliveTime > 10) {
             scene.remove(goldenChest);
             goldenChest.geometry.dispose();
             goldenChest.material.dispose();
@@ -1385,13 +1433,14 @@
         }
     }
 
+    // ---------- ОБРАБОТЧИК КЛИКА ПО 3D ----------
     function handleCanvasClick(event) {
+        if (event.target !== renderer.domElement) return;
         initAudio();
-        const container = document.getElementById('canvas-container');
-        const rect = container.getBoundingClientRect();
 
-        mouse.x = ((event.clientX - rect.left) / container.clientWidth) * 2 - 1;
-        mouse.y = -((event.clientY - rect.top) / container.clientHeight) * 2 + 1;
+        const rect = renderer.domElement.getBoundingClientRect();
+        mouse.x = ((event.clientX - rect.left) / renderer.domElement.clientWidth) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / renderer.domElement.clientHeight) * 2 + 1;
 
         raycaster.setFromCamera(mouse, camera);
 
@@ -1403,10 +1452,7 @@
                 createFloatingText(event.clientX - rect.left, event.clientY - rect.top, `+$${formatNumber(bonus)} GOLD!`, true);
                 playSound('gold');
                 triggerVibration('heavy');
-                scene.remove(goldenChest);
-                goldenChest.geometry.dispose();
-                goldenChest.material.dispose();
-                goldenChest = null;
+                clearGoldenChest();
                 updateUI();
                 saveGame();
                 return;
@@ -1426,6 +1472,7 @@
         saveGame();
     }
 
+    // ---------- FEVER И КОМБО ----------
     function addCombo() {
         if (isFever || feverCooldownTimer > 0) return;
         comboVal = Math.min(100, comboVal + 8);
@@ -1485,6 +1532,7 @@
         playSound('gold');
     }
 
+    // ---------- ОПЫТ ----------
     function addXP(amount) {
         let bonusXp = amount * (1 + state.prestigeLevel * 0.5);
         state.xp += bonusXp;
@@ -1511,6 +1559,7 @@
         setTimeout(() => text.remove(), 700);
     }
 
+    // ---------- UI ЭЛЕМЕНТЫ ----------
     const cashEl = document.getElementById('cash-val');
     const cpsEl = document.getElementById('cps-val');
     const cpcEl = document.getElementById('cpc-val');
@@ -1532,6 +1581,7 @@
     const buyTerr2Btn = document.getElementById('buy-terr2-btn');
     const buyTerr3Btn = document.getElementById('buy-terr3-btn');
 
+    // ---------- ОБРАБОТЧИКИ ПОКУПОК ----------
     buyClickBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         if (state.cash >= state.clickCost) {
@@ -1640,11 +1690,20 @@
         }
     });
 
+    // ---------- ПРЕСТИЖ (НОВАЯ СИСТЕМА) ----------
     document.getElementById('reborn-game-btn').addEventListener('click', (e) => {
         e.stopPropagation();
-        let cost = 100000;
+        const cost = getPrestigeCost();
         if (state.cash >= cost) {
-            if (confirm("Совершить перерождение? Сбросится прогресс фабрики и деньги, но вы получите +1 уровень престижа (+100% ко всем доходам и ускорение опыта навсегда)!")) {
+            if (confirm(`Совершить перерождение за $${formatNumber(cost)}? Сбросится прогресс фабрики и деньги, но вы получите +1 уровень престижа (+100% ко всем доходам и ускорение опыта навсегда)!`)) {
+                // Сброс FEVER/комбо
+                comboVal = 0;
+                isFever = false;
+                feverActiveTimer = 0;
+                feverCooldownTimer = 0;
+                document.getElementById('canvas-container').classList.remove('fever-active');
+                document.getElementById('fever-badge').classList.remove('active');
+
                 state.prestigeLevel++;
                 state.cash = 0;
                 state.level = 1;
@@ -1666,28 +1725,45 @@
                 state.terr1Lvl = 0;
                 state.terr2Lvl = 0;
                 state.terr3Lvl = 0;
-                drones = [];
+
+                clearDrones();
+                clearSmoke();
+                clearGoldenChest();
+
                 triggerVibration('success');
                 updateModelVisuals();
                 updateUI();
                 saveGame();
             }
         } else {
-            alert("Для перерождения нужно минимум $100K!");
+            alert(`Для перерождения нужно $${formatNumber(cost)}!`);
         }
     });
 
+    // ---------- СБРОС ----------
     document.getElementById('reset-game-btn').addEventListener('click', (e) => {
         e.stopPropagation();
         if (confirm("Сбросить абсолютно весь прогресс, включая престиж?")) {
             localStorage.removeItem('tycoon3d_save');
             state = { ...defaultState, lastSaveTime: Date.now() };
-            drones = [];
+
+            comboVal = 0;
+            isFever = false;
+            feverActiveTimer = 0;
+            feverCooldownTimer = 0;
+            document.getElementById('canvas-container').classList.remove('fever-active');
+            document.getElementById('fever-badge').classList.remove('active');
+
+            clearDrones();
+            clearSmoke();
+            clearGoldenChest();
+
             updateModelVisuals();
             updateUI();
         }
     });
 
+    // ---------- ОБНОВЛЕНИЕ UI ----------
     function updateUI() {
         state.cps = getAutoGain() + getFactoryGain() + getStorageGain();
 
@@ -1745,8 +1821,13 @@
         buySuperClickBtn.disabled = state.cash < state.superClickCost;
         buyFactoryBtn.disabled = state.cash < state.factoryCost;
         buyStorageBtn.disabled = state.cash < state.storageCost;
+
+        // Обновление кнопки престижа с ценой
+        const cost = getPrestigeCost();
+        document.getElementById('reborn-game-btn').innerText = `🔄 Престиж ($${formatNumber(cost)})`;
     }
 
+    // ---------- СОХРАНЕНИЕ И ЗАГРУЗКА ----------
     function saveGame() {
         state.lastSaveTime = Date.now();
         localStorage.setItem('tycoon3d_save', JSON.stringify(state));
@@ -1757,15 +1838,14 @@
         if (saved) {
             try {
                 const parsed = JSON.parse(saved);
-                if (parsed.version === SAVE_VERSION) {
-                    Object.assign(state, parsed);
-                } else {
-                    Object.assign(state, parsed);
-                    state.version = SAVE_VERSION;
-                }
+                Object.assign(state, defaultState, parsed);
+                state.version = SAVE_VERSION;
+
+                // Пересчёт CPS для оффлайна
+                state.cps = getAutoGain() + getFactoryGain() + getStorageGain();
 
                 if (state.lastSaveTime && state.cps > 0) {
-                    const MAX_OFFLINE_SEC = 12 * 60 * 60; // cap at 12h so clock-forward tricks can't mint infinite cash
+                    const MAX_OFFLINE_SEC = 12 * 60 * 60;
                     const elapsedSec = Math.min(MAX_OFFLINE_SEC, Math.floor((Date.now() - state.lastSaveTime) / 1000));
                     if (elapsedSec > 3) {
                         const offlineEarnings = elapsedSec * state.cps;
@@ -1774,12 +1854,16 @@
                 }
             } catch (e) {
                 console.error("Ошибка загрузки сохранения, используется дефолтное.", e);
+                Object.assign(state, defaultState);
             }
+        } else {
+            Object.assign(state, defaultState);
         }
         updateModelVisuals();
         updateUI();
     }
 
+    // ---------- ПАССИВНЫЙ ДОХОД ----------
     setInterval(() => {
         if (state.cps > 0) {
             state.cash += state.cps;
@@ -1788,6 +1872,7 @@
         }
     }, 1000);
 
+    // ---------- СТАРТ ----------
     window.addEventListener('DOMContentLoaded', () => {
         init3D();
         loadGame();
