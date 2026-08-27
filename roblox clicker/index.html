@@ -9,6 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     
     <style>
+        /* ===== СТИЛИ (те же, что были, без изменений) ===== */
         * {
             box-sizing: border-box;
             user-select: none;
@@ -36,37 +37,12 @@
             align-items: center;
         }
 
-        /* 6 ЦВЕТОВЫХ ТЕМ ОФОРМЛЕНИЯ */
-        body.theme-neon {
-            --bg-main: #0b0e14;
-            --accent: #00f2fe;
-            --panel-bg: rgba(22, 27, 38, 0.95);
-        }
-        body.theme-toxic {
-            --bg-main: #0c140b;
-            --accent: #00ff66;
-            --panel-bg: rgba(18, 38, 22, 0.95);
-        }
-        body.theme-night {
-            --bg-main: #080710;
-            --accent: #a855f7;
-            --panel-bg: rgba(24, 20, 38, 0.95);
-        }
-        body.theme-matrix {
-            --bg-main: #020604;
-            --accent: #22c55e;
-            --panel-bg: rgba(5, 20, 10, 0.95);
-        }
-        body.theme-retro {
-            --bg-main: #140814;
-            --accent: #ec4899;
-            --panel-bg: rgba(35, 15, 35, 0.95);
-        }
-        body.theme-gold {
-            --bg-main: #141008;
-            --accent: #eab308;
-            --panel-bg: rgba(35, 28, 10, 0.95);
-        }
+        body.theme-neon { --bg-main: #0b0e14; --accent: #00f2fe; --panel-bg: rgba(22, 27, 38, 0.95); }
+        body.theme-toxic { --bg-main: #0c140b; --accent: #00ff66; --panel-bg: rgba(18, 38, 22, 0.95); }
+        body.theme-night { --bg-main: #080710; --accent: #a855f7; --panel-bg: rgba(24, 20, 38, 0.95); }
+        body.theme-matrix { --bg-main: #020604; --accent: #22c55e; --panel-bg: rgba(5, 20, 10, 0.95); }
+        body.theme-retro { --bg-main: #140814; --accent: #ec4899; --panel-bg: rgba(35, 15, 35, 0.95); }
+        body.theme-gold { --bg-main: #141008; --accent: #eab308; --panel-bg: rgba(35, 28, 10, 0.95); }
 
         .game-card {
             width: 100%;
@@ -83,7 +59,6 @@
             transition: background 0.3s;
         }
 
-        /* Кнопка меню в углу экрана (Гамбургер) */
         .cyber-menu-btn {
             position: fixed;
             top: 15px;
@@ -103,16 +78,8 @@
             box-shadow: 0 0 10px var(--accent);
             backdrop-filter: blur(4px);
         }
+        .cyber-menu-btn span { display: block; width: 20px; height: 2px; background: var(--accent); transition: 0.3s; }
 
-        .cyber-menu-btn span {
-            display: block;
-            width: 20px;
-            height: 2px;
-            background: var(--accent);
-            transition: 0.3s;
-        }
-
-        /* Затемнение фона при открытом меню */
         .menu-overlay {
             position: fixed;
             top: 0;
@@ -126,13 +93,8 @@
             transition: 0.3s ease;
             z-index: 1001;
         }
+        .menu-overlay.active { opacity: 1; visibility: visible; }
 
-        .menu-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        /* Выезжающая боковая панель */
         .side-menu {
             position: fixed;
             top: 0;
@@ -149,10 +111,7 @@
             padding: 20px;
             box-sizing: border-box;
         }
-
-        .side-menu.active {
-            right: 0;
-        }
+        .side-menu.active { right: 0; }
 
         .menu-header {
             display: flex;
@@ -163,22 +122,8 @@
             color: #f8fafc;
             font-family: monospace;
         }
-
-        .close-btn {
-            background: none;
-            border: none;
-            color: #94a3b8;
-            font-size: 28px;
-            cursor: pointer;
-        }
-
-        .menu-content {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-top: 20px;
-        }
-
+        .close-btn { background: none; border: none; color: #94a3b8; font-size: 28px; cursor: pointer; }
+        .menu-content { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
         .menu-item {
             background: rgba(30, 41, 59, 0.6);
             border: 1px solid #334155;
@@ -192,14 +137,8 @@
             transition: 0.2s;
             display: block;
         }
+        .menu-item:hover { background: rgba(0, 240, 255, 0.1); border-color: var(--accent); color: var(--accent); }
 
-        .menu-item:hover {
-            background: rgba(0, 240, 255, 0.1);
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-
-        /* Модальное окно настроек тем */
         .settings-modal {
             position: fixed;
             top: 0;
@@ -215,12 +154,7 @@
             transition: 0.3s;
             z-index: 1003;
         }
-
-        .settings-modal.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
+        .settings-modal.active { opacity: 1; visibility: visible; }
         .settings-content {
             background: #0f172a;
             border: 1px solid var(--accent);
@@ -232,14 +166,12 @@
             color: #f8fafc;
             text-align: center;
         }
-
         .theme-options {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 8px;
             margin: 15px 0;
         }
-
         .theme-btn {
             background: #1e293b;
             border: 1px solid #475569;
@@ -250,102 +182,31 @@
             font-size: 12px;
             transition: 0.2s;
         }
-
-        .theme-btn:hover {
-            border-color: var(--accent);
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .close-settings-btn {
-            background: #334155;
-            border: none;
-            color: #fff;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            width: 100%;
-        }
+        .theme-btn:hover { border-color: var(--accent); background: rgba(255, 255, 255, 0.1); }
+        .close-settings-btn { background: #334155; border: none; color: #fff; padding: 8px 16px; border-radius: 6px; cursor: pointer; width: 100%; }
 
         .stats-panel {
             background: var(--panel-bg);
             border: 1px solid var(--accent);
             padding: 12px 14px;
+            padding-right: 55px;
             border-radius: 16px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
             flex-shrink: 0;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
         }
-
-        .stats-main-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .cash-box {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .cash-label {
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #7f8c8d;
-            font-weight: 700;
-        }
-
-        .cash-display {
-            font-size: 24px;
-            font-weight: 900;
-            color: #00e676;
-            text-shadow: 0 0 12px rgba(0, 230, 118, 0.35);
-        }
-
-        .income-badges {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 2px;
-        }
-
-        .badge-rate {
-            font-size: 11px;
-            font-weight: 700;
-            padding: 3px 8px;
-            border-radius: 8px;
-            background: rgba(0, 242, 254, 0.1);
-            color: var(--accent);
-            border: 1px solid var(--accent);
-        }
-
-        .badge-tap {
-            font-size: 11px;
-            font-weight: 700;
-            padding: 3px 8px;
-            border-radius: 8px;
-            background: rgba(155, 81, 224, 0.1);
-            color: #bd00ff;
-            border: 1px solid rgba(155, 81, 224, 0.25);
-        }
-
-        .level-bar-container {
-            width: 100%;
-            height: 6px;
-            background: #141824;
-            border-radius: 6px;
-            overflow: hidden;
-        }
-
-        .level-bar-fill {
-            height: 100%;
-            width: 0%;
-            background: var(--accent);
-            box-shadow: 0 0 8px var(--accent);
-            transition: width 0.3s ease;
-        }
+        .stats-main-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .cash-box { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+        .cash-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #7f8c8d; font-weight: 700; width: 100%; }
+        .cash-display { font-size: 24px; font-weight: 900; color: #00e676; text-shadow: 0 0 12px rgba(0, 230, 118, 0.35); white-space: nowrap; }
+        .income-badges { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+        .badge-rate { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 8px; background: rgba(0, 242, 254, 0.1); color: var(--accent); border: 1px solid var(--accent); white-space: nowrap; }
+        .badge-tap { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 8px; background: rgba(155, 81, 224, 0.1); color: #bd00ff; border: 1px solid rgba(155, 81, 224, 0.25); white-space: nowrap; }
+        .level-bar-container { width: 100%; height: 6px; background: #141824; border-radius: 6px; overflow: hidden; }
+        .level-bar-fill { height: 100%; width: 0%; background: var(--accent); box-shadow: 0 0 8px var(--accent); transition: width 0.3s ease; }
+        .stats-secondary { display: flex; justify-content: space-between; font-size: 11px; color: #a4b0be; }
 
         #canvas-container {
             width: 100%;
@@ -361,17 +222,12 @@
             border: 1.5px solid var(--accent);
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
         }
-
         #canvas-container.fever-active {
             border-color: #ff9f1a;
             box-shadow: 0 0 25px rgba(255, 159, 26, 0.6);
             animation: pulseFever 0.5s infinite alternate;
         }
-
-        @keyframes pulseFever {
-            from { border-color: #ff9f1a; }
-            to { border-color: #ff3838; }
-        }
+        @keyframes pulseFever { from { border-color: #ff9f1a; } to { border-color: #ff3838; } }
 
         .fever-badge {
             position: absolute;
@@ -390,10 +246,7 @@
             transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             letter-spacing: 1px;
         }
-
-        .fever-badge.active {
-            transform: translateX(-50%) scale(1);
-        }
+        .fever-badge.active { transform: translateX(-50%) scale(1); }
 
         .combo-wrapper {
             position: absolute;
@@ -405,37 +258,15 @@
             gap: 4px;
             pointer-events: none;
         }
-
-        .combo-text-info {
-            font-size: 10px;
-            font-weight: 800;
-            letter-spacing: 0.5px;
-            color: #8a9bb2;
-            text-align: right;
-        }
-
-        .combo-container {
-            width: 100%;
-            height: 7px;
-            background: rgba(0, 0, 0, 0.6);
-            border-radius: 10px;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-        }
-
-        .combo-fill {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, var(--accent), #ff9f1a, #ff3838);
-            transition: width 0.1s linear;
-        }
+        .combo-text-info { font-size: 10px; font-weight: 800; letter-spacing: 0.5px; color: #8a9bb2; text-align: right; }
+        .combo-container { width: 100%; height: 7px; background: rgba(0, 0, 0, 0.6); border-radius: 10px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.12); }
+        .combo-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), #ff9f1a, #ff3838); transition: width 0.1s linear; }
 
         .tabs-header {
             display: flex;
             gap: 6px;
             flex-shrink: 0;
         }
-
         .tab-btn {
             flex: 1;
             padding: 7px 4px;
@@ -449,7 +280,6 @@
             text-align: center;
             transition: all 0.2s;
         }
-
         .tab-btn.active {
             background: rgba(0, 242, 254, 0.15);
             color: var(--accent);
@@ -482,10 +312,7 @@
             flex-direction: column;
             gap: 8px;
         }
-
-        .shop-panel.hidden {
-            display: none;
-        }
+        .shop-panel.hidden { display: none; }
 
         .shop-item {
             display: flex;
@@ -497,46 +324,12 @@
             border: 1px solid rgba(255, 255, 255, 0.04);
             flex-shrink: 0;
         }
-
-        .shop-item-info {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .shop-item-top {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .shop-item-title {
-            font-size: 13px;
-            font-weight: 700;
-            color: #f1f2f6;
-        }
-
-        .item-lvl-badge {
-            font-size: 9px;
-            font-weight: 800;
-            padding: 1px 6px;
-            border-radius: 6px;
-            background: rgba(0, 242, 254, 0.15);
-            color: var(--accent);
-        }
-
-        .shop-item-gain {
-            font-size: 11px;
-            color: #4cd137;
-            font-weight: 600;
-        }
-
-        .shop-item-cost {
-            font-size: 11px;
-            color: #a4b0be;
-            font-weight: 500;
-        }
-
+        .shop-item-info { display: flex; flex-direction: column; gap: 2px; }
+        .shop-item-top { display: flex; align-items: center; gap: 6px; }
+        .shop-item-title { font-size: 13px; font-weight: 700; color: #f1f2f6; }
+        .item-lvl-badge { font-size: 9px; font-weight: 800; padding: 1px 6px; border-radius: 6px; background: rgba(0, 242, 254, 0.15); color: var(--accent); }
+        .shop-item-gain { font-size: 11px; color: #4cd137; font-weight: 600; }
+        .shop-item-cost { font-size: 11px; color: #a4b0be; font-weight: 500; }
         .shop-item-btn {
             padding: 9px 14px;
             background: linear-gradient(135deg, var(--accent) 0%, #4facfe 100%);
@@ -549,50 +342,13 @@
             box-shadow: 0 2px 10px rgba(0, 242, 254, 0.25);
             transition: transform 0.1s;
         }
-
         .shop-item-btn:active { transform: scale(0.95); }
-        .shop-item-btn:disabled {
-            background: #252b3b;
-            color: #57606f;
-            box-shadow: none;
-            cursor: not-allowed;
-            transform: none;
-        }
+        .shop-item-btn:disabled { background: #252b3b; color: #57606f; box-shadow: none; cursor: not-allowed; transform: none; }
 
-        .action-buttons-row {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-        }
-
-        .reset-btn {
-            background: rgba(231, 76, 60, 0.15);
-            color: #e74c3c;
-            border: 1px solid rgba(231, 76, 60, 0.3);
-            padding: 4px 10px;
-            border-radius: 8px;
-            font-size: 10px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .reborn-btn {
-            background: rgba(168, 85, 247, 0.2);
-            color: #d8b4fe;
-            border: 1px solid rgba(168, 85, 247, 0.4);
-            padding: 4px 10px;
-            border-radius: 8px;
-            font-size: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-            white-space: nowrap;
-        }
-
-        .reborn-btn:hover {
-            background: rgba(168, 85, 247, 0.4);
-            box-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
-        }
+        .action-buttons-row { display: flex; gap: 6px; align-items: center; }
+        .reset-btn { background: rgba(231, 76, 60, 0.15); color: #e74c3c; border: 1px solid rgba(231, 76, 60, 0.3); padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: bold; cursor: pointer; }
+        .reborn-btn { background: rgba(168, 85, 247, 0.2); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.4); padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; white-space: nowrap; }
+        .reborn-btn:hover { background: rgba(168, 85, 247, 0.4); box-shadow: 0 0 10px rgba(168, 85, 247, 0.5); }
 
         .floating-text {
             position: absolute;
@@ -604,32 +360,21 @@
             z-index: 100;
             text-shadow: 0 0 10px rgba(0, 230, 118, 0.6);
         }
-
-        .floating-text.fever-text {
-            color: #ff9f1a;
-            text-shadow: 0 0 12px rgba(255, 159, 26, 0.8);
-            font-size: 28px;
-        }
-
-        @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-40px) scale(1.2); }
-        }
+        .floating-text.fever-text { color: #ff9f1a; text-shadow: 0 0 12px rgba(255, 159, 26, 0.8); font-size: 28px; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-40px) scale(1.2); } }
     </style>
 </head>
 <body class="theme-neon">
 
-<!-- КНОПКА МЕНЮ -->
+<!-- ===== КНОПКА МЕНЮ ===== -->
 <button id="menu-btn" class="cyber-menu-btn" aria-label="Открыть меню">
-    <span></span>
-    <span></span>
-    <span></span>
+    <span></span><span></span><span></span>
 </button>
 
-<!-- ЗАТЕМНЕНИЕ ФОНА -->
+<!-- ===== ЗАТЕМНЕНИЕ ФОНА ===== -->
 <div id="menu-overlay" class="menu-overlay"></div>
 
-<!-- ВЫЕЗЖАЮЩАЯ БОКОВАЯ ПАНЕЛЬ -->
+<!-- ===== ВЫЕЗЖАЮЩАЯ БОКОВАЯ ПАНЕЛЬ ===== -->
 <div id="side-menu" class="side-menu">
     <div class="menu-header">
         <h3>Меню</h3>
@@ -637,11 +382,14 @@
     </div>
     <div class="menu-content">
         <button class="menu-item" id="open-settings">⚙️ Выбор темы</button>
+        <button class="menu-item" id="open-leaderboard">🏆 Таблица лидеров</button>
+        <button class="menu-item" id="open-achievements">🎯 Достижения</button>
+        <button class="menu-item" id="invite-friend-btn">📨 Пригласить друга</button>
         <a href="https://t.me/nikxvmisx" target="_blank" class="menu-item">📢 Канал автора</a>
     </div>
 </div>
 
-<!-- МОДАЛЬНОЕ ОКНО НАСТРОЕК ТЕМ -->
+<!-- ===== МОДАЛЬНОЕ ОКНО НАСТРОЕК ТЕМ ===== -->
 <div id="settings-modal" class="settings-modal">
     <div class="settings-content">
         <h3>Выбор темы</h3>
@@ -657,19 +405,41 @@
     </div>
 </div>
 
+<!-- ===== МОДАЛЬНОЕ ОКНО ЛИДЕРОВ ===== -->
+<div id="leaderboard-modal" class="settings-modal">
+    <div class="settings-content" style="max-width: 380px; text-align: left;">
+        <h3 style="text-align: center;">🏆 Топ-10 игроков</h3>
+        <div id="leaderboard-list" style="margin: 15px 0; font-size: 14px; max-height: 300px; overflow-y: auto;">
+            <div style="text-align: center; color: #8a9bb2; padding: 20px;">Загрузка...</div>
+        </div>
+        <button id="close-leaderboard" class="close-settings-btn">Закрыть</button>
+        <button id="refresh-leaderboard" class="close-settings-btn" style="margin-top: 6px; background: var(--accent); color: #000;">Обновить</button>
+    </div>
+</div>
+
+<!-- ===== МОДАЛЬНОЕ ОКНО ДОСТИЖЕНИЙ ===== -->
+<div id="achievements-modal" class="settings-modal">
+    <div class="settings-content" style="max-width: 380px; text-align: left;">
+        <h3 style="text-align: center;">🎯 Достижения</h3>
+        <div id="achievements-list" style="margin: 15px 0; font-size: 13px; max-height: 300px; overflow-y: auto;"></div>
+        <button id="close-achievements" class="close-settings-btn">Закрыть</button>
+    </div>
+</div>
+
 <div class="game-card">
+    <!-- СТАТИСТИКА -->
     <div class="stats-panel">
         <div class="stats-main-row">
             <div class="cash-box">
                 <span class="cash-label" id="reborn-tier-label">Баланс (Престиж x0)</span>
                 <div class="cash-display" id="cash-val">$0</div>
-            </div>
-            <div class="income-badges">
-                <div class="badge-rate" id="cps-val">+ $0 /сек</div>
-                <div class="badge-tap" id="cpc-val">+ $1 /клик</div>
+                <div class="income-badges">
+                    <div class="badge-rate" id="cps-val">+ $0 /сек</div>
+                    <div class="badge-tap" id="cpc-val">+ $1 /клик</div>
+                </div>
             </div>
         </div>
-        <div class="stats-main-row" style="font-size: 11px; color: #a4b0be;">
+        <div class="stats-secondary">
             <span id="level-val" style="font-weight:700; color:#fff;">Уровень 1</span>
             <span id="xp-val">XP: 0 / 100</span>
         </div>
@@ -692,7 +462,7 @@
     <!-- ВКЛАДКИ МЕНЮ -->
     <div class="tabs-header">
         <button class="tab-btn active" id="tab-shop-btn" onclick="switchTab('shop')">Фабрика</button>
-        <button class="tab-btn" id="tab-tech-btn" onclick="switchTab('tech')">Дерево Техно</button>
+        <button class="tab-btn" id="tab-tech-btn" onclick="switchTab('tech')">Древо Технологий</button>
         <button class="tab-btn" id="tab-territory-btn" onclick="switchTab('territory')">Территории</button>
     </div>
 
@@ -706,148 +476,43 @@
     
     <!-- ПАНЕЛЬ 1: МАГАЗИН ФАБРИКИ -->
     <div class="shop-panel" id="panel-shop">
-        <div class="shop-item">
-            <div class="shop-item-info">
-                <div class="shop-item-top">
-                    <span class="shop-item-title">Сила клика</span>
-                    <span class="item-lvl-badge" id="lvl-click">Ур. 0</span>
-                </div>
-                <div class="shop-item-gain" id="gain-click">+1 $/клик</div>
-                <div class="shop-item-cost" id="upgrade-click-cost">Цена: $10</div>
-            </div>
-            <button class="shop-item-btn" id="buy-click-btn">Улучшить</button>
-        </div>
-
-        <div class="shop-item">
-            <div class="shop-item-info">
-                <div class="shop-item-top">
-                    <span class="shop-item-title">Дрон-Рабочий</span>
-                    <span class="item-lvl-badge" id="lvl-auto">Ур. 0</span>
-                </div>
-                <div class="shop-item-gain" id="gain-auto">+2 $/сек</div>
-                <div class="shop-item-cost" id="upgrade-auto-cost">Цена: $25</div>
-            </div>
-            <button class="shop-item-btn" id="buy-auto-btn">Улучшить</button>
-        </div>
-
-        <div class="shop-item">
-            <div class="shop-item-info">
-                <div class="shop-item-top">
-                    <span class="shop-item-title">Фонари Базы</span>
-                    <span class="item-lvl-badge" id="lvl-super">Ур. 0</span>
-                </div>
-                <div class="shop-item-gain" id="gain-super">+5 $/клик</div>
-                <div class="shop-item-cost" id="upgrade-superclick-cost">Цена: $120</div>
-            </div>
-            <button class="shop-item-btn" id="buy-superclick-btn">Улучшить</button>
-        </div>
-
-        <div class="shop-item">
-            <div class="shop-item-info">
-                <div class="shop-item-top">
-                    <span class="shop-item-title">Мини-Фабрика</span>
-                    <span class="item-lvl-badge" id="lvl-factory">Ур. 0</span>
-                </div>
-                <div class="shop-item-gain" id="gain-factory">+10 $/сек</div>
-                <div class="shop-item-cost" id="upgrade-factory-cost">Цена: $300</div>
-            </div>
-            <button class="shop-item-btn" id="buy-factory-btn">Улучшить</button>
-        </div>
-
-        <div class="shop-item">
-            <div class="shop-item-info">
-                <div class="shop-item-top">
-                    <span class="shop-item-title">Склад Ресурсов</span>
-                    <span class="item-lvl-badge" id="lvl-storage">Ур. 0</span>
-                </div>
-                <div class="shop-item-gain" id="gain-storage">+25 $/сек</div>
-                <div class="shop-item-cost" id="upgrade-storage-cost">Цена: $650</div>
-            </div>
-            <button class="shop-item-btn" id="buy-storage-btn">Улучшить</button>
-        </div>
+        <div class="shop-item"><div class="shop-item-info"><div class="shop-item-top"><span class="shop-item-title">Сила клика</span><span class="item-lvl-badge" id="lvl-click">Ур. 0</span></div><div class="shop-item-gain" id="gain-click">+1 $/клик</div><div class="shop-item-cost" id="upgrade-click-cost">Цена: $10</div></div><button class="shop-item-btn" id="buy-click-btn">Улучшить</button></div>
+        <div class="shop-item"><div class="shop-item-info"><div class="shop-item-top"><span class="shop-item-title">Дрон-Рабочий</span><span class="item-lvl-badge" id="lvl-auto">Ур. 0</span></div><div class="shop-item-gain" id="gain-auto">+2 $/сек</div><div class="shop-item-cost" id="upgrade-auto-cost">Цена: $25</div></div><button class="shop-item-btn" id="buy-auto-btn">Улучшить</button></div>
+        <div class="shop-item"><div class="shop-item-info"><div class="shop-item-top"><span class="shop-item-title">Фонари Базы</span><span class="item-lvl-badge" id="lvl-super">Ур. 0</span></div><div class="shop-item-gain" id="gain-super">+5 $/клик</div><div class="shop-item-cost" id="upgrade-superclick-cost">Цена: $120</div></div><button class="shop-item-btn" id="buy-superclick-btn">Улучшить</button></div>
+        <div class="shop-item"><div class="shop-item-info"><div class="shop-item-top"><span class="shop-item-title">Мини-Фабрика</span><span class="item-lvl-badge" id="lvl-factory">Ур. 0</span></div><div class="shop-item-gain" id="gain-factory">+10 $/сек</div><div class="shop-item-cost" id="upgrade-factory-cost">Цена: $300</div></div><button class="shop-item-btn" id="buy-factory-btn">Улучшить</button></div>
+        <div class="shop-item"><div class="shop-item-info"><div class="shop-item-top"><span class="shop-item-title">Склад Ресурсов</span><span class="item-lvl-badge" id="lvl-storage">Ур. 0</span></div><div class="shop-item-gain" id="gain-storage">+25 $/сек</div><div class="shop-item-cost" id="upgrade-storage-cost">Цена: $650</div></div><button class="shop-item-btn" id="buy-storage-btn">Улучшить</button></div>
     </div>
 
-    <!-- ПАНЕЛЬ 2: ДЕРЕВО ТЕХНОЛОГИЙ -->
+    <!-- ПАНЕЛЬ 2: ДРЕВО ТЕХНОЛОГИЙ -->
     <div class="shop-panel hidden" id="panel-tech">
-        <div class="shop-item">
-            <div class="shop-item-info">
-                <div class="shop-item-top">
-                    <span class="shop-item-title">Квантовый Процессор</span>
-                    <span class="item-lvl-badge" id="lvl-tech1">Ур. 0</span>
-                </div>
-                <div class="shop-item-gain">+25% ко всем доходам</div>
-                <div class="shop-item-cost" id="cost-tech1">Цена: $500</div>
-            </div>
-            <button class="shop-item-btn" id="buy-tech1-btn">Изучить</button>
-        </div>
-
-        <div class="shop-item">
-            <div class="shop-item-info">
-                <div class="shop-item-top">
-                    <span class="shop-item-title">Нано-Боты Сети</span>
-                    <span class="item-lvl-badge" id="lvl-tech2">Ур. 0</span>
-                </div>
-                <div class="shop-item-gain">+50% к пассиву (CPS)</div>
-                <div class="shop-item-cost" id="cost-tech2">Цена: $2,000</div>
-            </div>
-            <button class="shop-item-btn" id="buy-tech2-btn">Изучить</button>
-        </div>
-
-        <div class="shop-item">
-            <div class="shop-item-info">
-                <div class="shop-item-top">
-                    <span class="shop-item-title">ИИ Автоматизация</span>
-                    <span class="item-lvl-badge" id="lvl-tech3">Ур. 0</span>
-                </div>
-                <div class="shop-item-gain">Ускорение FEVER и X2 клик</div>
-                <div class="shop-item-cost" id="cost-tech3">Цена: $10,000</div>
-            </div>
-            <button class="shop-item-btn" id="buy-tech3-btn">Изучить</button>
-        </div>
+        <div class="shop-item"><div class="shop-item-info"><div class="shop-item-top"><span class="shop-item-title">Квантовый Процессор</span><span class="item-lvl-badge" id="lvl-tech1">Ур. 0</span></div><div class="shop-item-gain">+25% ко всем доходам</div><div class="shop-item-cost" id="cost-tech1">Цена: $500</div></div><button class="shop-item-btn" id="buy-tech1-btn">Изучить</button></div>
+        <div class="shop-item"><div class="shop-item-info"><div class="shop-item-top"><span class="shop-item-title">Нано-Боты Сети</span><span class="item-lvl-badge" id="lvl-tech2">Ур. 0</span></div><div class="shop-item-gain">+50% к пассиву (CPS)</div><div class="shop-item-cost" id="cost-tech2">Цена: $2,000</div></div><button class="shop-item-btn" id="buy-tech2-btn">Изучить</button></div>
+        <div class="shop-item"><div class="shop-item-info"><div class="shop-item-top"><span class="shop-item-title">ИИ Автоматизация</span><span class="item-lvl-badge" id="lvl-tech3">Ур. 0</span></div><div class="shop-item-gain">Ускорение FEVER и X2 клик</div><div class="shop-item-cost" id="cost-tech3">Цена: $10,000</div></div><button class="shop-item-btn" id="buy-tech3-btn">Изучить</button></div>
+        <div class="shop-item"><div class="shop-item-info"><div class="shop-item-top"><span class="shop-item-title">Кибер-Имплант</span><span class="item-lvl-badge" id="lvl-tech4">Ур. 0</span></div><div class="shop-item-gain">+50% к силе клика</div><div class="shop-item-cost" id="cost-tech4">Цена: $50,000</div></div><button class="shop-item-btn" id="buy-tech4-btn">Изучить</button></div>
+        <div class="shop-item"><div class="shop-item-info"><div class="shop-item-top"><span class="shop-item-title">Квантовый Ускоритель</span><span class="item-lvl-badge" id="lvl-tech5">Ур. 0</span></div><div class="shop-item-gain">+100% к пассиву (CPS)</div><div class="shop-item-cost" id="cost-tech5">Цена: $250,000</div></div><button class="shop-item-btn" id="buy-tech5-btn">Изучить</button></div>
+        <div class="shop-item"><div class="shop-item-info"><div class="shop-item-top"><span class="shop-item-title">Нейросеть Фабрики</span><span class="item-lvl-badge" id="lvl-tech6">Ур. 0</span></div><div class="shop-item-gain">Автоклик каждые 3 сек</div><div class="shop-item-cost" id="cost-tech6">Цена: $1,000,000</div></div><button class="shop-item-btn" id="buy-tech6-btn">Изучить</button></div>
     </div>
 
-    <!-- ПАНЕЛЬ 3: РАСШИРЕНИЕ ТЕРРИТОРИЙ -->
+    <!-- ПАНЕЛЬ 3: ТЕРРИТОРИИ -->
     <div class="shop-panel hidden" id="panel-territory">
-        <div class="shop-item">
-            <div class="shop-item-info">
-                <div class="shop-item-top">
-                    <span class="shop-item-title">Сектор Б: Энерго-Кольцо</span>
-                    <span class="item-lvl-badge" id="lvl-terr1">Закрыто</span>
-                </div>
-                <div class="shop-item-gain">Открывает внешнюю платформу</div>
-                <div class="shop-item-cost" id="cost-terr1">Цена: $1,500</div>
-            </div>
-            <button class="shop-item-btn" id="buy-terr1-btn">Захватить</button>
-        </div>
-
-        <div class="shop-item">
-            <div class="shop-item-info">
-                <div class="shop-item-top">
-                    <span class="shop-item-title">Сектор В: Ангар Дронов</span>
-                    <span class="item-lvl-badge" id="lvl-terr2">Закрыто</span>
-                </div>
-                <div class="shop-item-gain">Удваивает максимальных дронов</div>
-                <div class="shop-item-cost" id="cost-terr2">Цена: $7,500</div>
-            </div>
-            <button class="shop-item-btn" id="buy-terr2-btn">Захватить</button>
-        </div>
-
-        <div class="shop-item">
-            <div class="shop-item-info">
-                <div class="shop-item-top">
-                    <span class="shop-item-title">Сектор Г: Кибер-Цитадель</span>
-                    <span class="item-lvl-badge" id="lvl-terr3">Закрыто</span>
-                </div>
-                <div class="shop-item-gain">Максимальный уровень базы</div>
-                <div class="shop-item-cost" id="cost-terr3">Цена: $35,000</div>
-            </div>
-            <button class="shop-item-btn" id="buy-terr3-btn">Захватить</button>
-        </div>
+        <div class="shop-item"><div class="shop-item-info"><div class="shop-item-top"><span class="shop-item-title">Сектор Б: Энерго-Кольцо</span><span class="item-lvl-badge" id="lvl-terr1">Закрыто</span></div><div class="shop-item-gain">Открывает внешнюю платформу</div><div class="shop-item-cost" id="cost-terr1">Цена: $1,500</div></div><button class="shop-item-btn" id="buy-terr1-btn">Захватить</button></div>
+        <div class="shop-item"><div class="shop-item-info"><div class="shop-item-top"><span class="shop-item-title">Сектор В: Ангар Дронов</span><span class="item-lvl-badge" id="lvl-terr2">Закрыто</span></div><div class="shop-item-gain">Удваивает максимальных дронов</div><div class="shop-item-cost" id="cost-terr2">Цена: $7,500</div></div><button class="shop-item-btn" id="buy-terr2-btn">Захватить</button></div>
+        <div class="shop-item"><div class="shop-item-info"><div class="shop-item-top"><span class="shop-item-title">Сектор Г: Кибер-Цитадель</span><span class="item-lvl-badge" id="lvl-terr3">Закрыто</span></div><div class="shop-item-gain">Максимальный уровень базы</div><div class="shop-item-cost" id="cost-terr3">Цена: $35,000</div></div><button class="shop-item-btn" id="buy-terr3-btn">Захватить</button></div>
+        <div class="shop-item"><div class="shop-item-info"><div class="shop-item-top"><span class="shop-item-title">Сектор Д: Теневой Рынок</span><span class="item-lvl-badge" id="lvl-terr4">Закрыто</span></div><div class="shop-item-gain">+50% ко всем доходам</div><div class="shop-item-cost" id="cost-terr4">Цена: $200,000</div></div><button class="shop-item-btn" id="buy-terr4-btn">Захватить</button></div>
+        <div class="shop-item"><div class="shop-item-info"><div class="shop-item-top"><span class="shop-item-title">Сектор Е: Мега-Фабрика</span><span class="item-lvl-badge" id="lvl-terr5">Закрыто</span></div><div class="shop-item-gain">+200% к пассиву (CPS)</div><div class="shop-item-cost" id="cost-terr5">Цена: $1,500,000</div></div><button class="shop-item-btn" id="buy-terr5-btn">Захватить</button></div>
+        <div class="shop-item"><div class="shop-item-info"><div class="shop-item-top"><span class="shop-item-title">Сектор Ж: Центр Управления</span><span class="item-lvl-badge" id="lvl-terr6">Закрыто</span></div><div class="shop-item-gain">Кулдаун FEVER -50%</div><div class="shop-item-cost" id="cost-terr6">Цена: $5,000,000</div></div><button class="shop-item-btn" id="buy-terr6-btn">Захватить</button></div>
     </div>
 </div>
 
 <script>
-    const SAVE_VERSION = 3;
+    // ================================================================
+    // ===== ВСТАВЬ СВОИ ДАННЫЕ ИЗ SUPABASE СЮДА =====
+    // ================================================================
+    const SUPABASE_URL = 'https://xbquaednsadmtprjkenh.supabase.co';  // ← сюда твой Project URL
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhicXVhZWRuc2FkbXRwcmprZW5oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3ODQwNzksImV4cCI6MjEwMzM2MDA3OX0.OJka8TrP02Co2z9eYbauWAu0UgjRTpvlKO9xNBLK_9I';  // ← сюда твой anon public ключ
+    // ================================================================
+
+    // ---------- ИНИЦИАЛИЗАЦИЯ TELEGRAM WEBAPP ----------
     const tg = window.Telegram?.WebApp;
     if (tg) {
         tg.ready();
@@ -856,34 +521,38 @@
         if (tg.setBackgroundColor) tg.setBackgroundColor('#0b0e14');
     }
 
-    // ---------- МЕНЮ И ТЕМЫ ----------
+    // ---------- СТАБИЛЬНЫЙ ID ИГРОКА ----------
+    function getUserId() {
+        let userId = localStorage.getItem('playerId');
+        if (!userId) {
+            userId = tg?.initDataUnsafe?.user?.id || Math.floor(Math.random() * 1000000000);
+            localStorage.setItem('playerId', userId);
+        }
+        return userId;
+    }
+
+    // ---------- МЕНЮ ----------
     const menuBtn = document.getElementById('menu-btn');
     const closeBtn = document.getElementById('close-btn');
     const sideMenu = document.getElementById('side-menu');
     const menuOverlay = document.getElementById('menu-overlay');
 
+    function toggleMenu() {
+        sideMenu.classList.toggle('active');
+        menuOverlay.classList.toggle('active');
+    }
+    menuBtn.addEventListener('click', toggleMenu);
+    closeBtn.addEventListener('click', toggleMenu);
+    menuOverlay.addEventListener('click', toggleMenu);
+
+    // ---------- НАСТРОЙКИ ТЕМ ----------
     const openSettings = document.getElementById('open-settings');
     const settingsModal = document.getElementById('settings-modal');
     const closeSettings = document.getElementById('close-settings');
     const themeButtons = document.querySelectorAll('.theme-btn');
 
-    function toggleMenu() {
-        sideMenu.classList.toggle('active');
-        menuOverlay.classList.toggle('active');
-    }
-
-    menuBtn.addEventListener('click', toggleMenu);
-    closeBtn.addEventListener('click', toggleMenu);
-    menuOverlay.addEventListener('click', toggleMenu);
-
-    openSettings.addEventListener('click', () => {
-        toggleMenu();
-        settingsModal.classList.add('active');
-    });
-
-    closeSettings.addEventListener('click', () => {
-        settingsModal.classList.remove('active');
-    });
+    openSettings.addEventListener('click', () => { toggleMenu(); settingsModal.classList.add('active'); });
+    closeSettings.addEventListener('click', () => { settingsModal.classList.remove('active'); });
 
     themeButtons.forEach(button => {
         button.addEventListener('click', (e) => {
@@ -897,13 +566,257 @@
         document.body.className = `theme-${themeName}`;
         localStorage.setItem('game_theme', themeName);
     }
-
     window.addEventListener('DOMContentLoaded', () => {
         const savedTheme = localStorage.getItem('game_theme') || 'neon';
         applyTheme(savedTheme);
     });
 
-    // ---------- УТИЛИТЫ ----------
+    // ---------- ТАБЛИЦА ЛИДЕРОВ ----------
+    const leaderboardModal = document.getElementById('leaderboard-modal');
+    const leaderboardList = document.getElementById('leaderboard-list');
+    const closeLeaderboard = document.getElementById('close-leaderboard');
+    const refreshLeaderboard = document.getElementById('refresh-leaderboard');
+
+    document.getElementById('open-leaderboard').addEventListener('click', () => {
+        toggleMenu();
+        leaderboardModal.classList.add('active');
+        loadLeaderboard();
+    });
+
+    closeLeaderboard.addEventListener('click', () => { leaderboardModal.classList.remove('active'); });
+    refreshLeaderboard.addEventListener('click', loadLeaderboard);
+
+    async function loadLeaderboard() {
+        leaderboardList.innerHTML = '<div style="text-align: center; color: #8a9bb2; padding: 20px;">Загрузка...</div>';
+        try {
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/players?select=username,score,level,prestige&order=score.desc&limit=10`, {
+                headers: {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                }
+            });
+            if (!response.ok) throw new Error('Ошибка загрузки');
+            const data = await response.json();
+            if (data.length === 0) {
+                leaderboardList.innerHTML = '<div style="text-align: center; color: #8a9bb2; padding: 20px;">Пока нет игроков. Будь первым!</div>';
+                return;
+            }
+            let html = '';
+            data.forEach((p, i) => {
+                const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
+                html += `<div style="display: flex; justify-content: space-between; padding: 6px 8px; border-bottom: 1px solid #1e293b;">
+                    <span>${medal} ${p.username || 'Аноним'}</span>
+                    <span style="color: #00e676;">$${formatNumber(p.score)}</span>
+                    <span style="color: #8a9bb2; font-size: 12px;">Ур.${p.level} | Прест.${p.prestige}</span>
+                </div>`;
+            });
+            leaderboardList.innerHTML = html;
+        } catch (e) {
+            leaderboardList.innerHTML = `<div style="text-align: center; color: #e74c3c; padding: 20px;">Ошибка загрузки: ${e.message}</div>`;
+        }
+    }
+
+    // ---------- ДОСТИЖЕНИЯ ----------
+    const achievementsModal = document.getElementById('achievements-modal');
+    const achievementsList = document.getElementById('achievements-list');
+    const closeAchievements = document.getElementById('close-achievements');
+
+    document.getElementById('open-achievements').addEventListener('click', () => {
+        toggleMenu();
+        achievementsModal.classList.add('active');
+        renderAchievements();
+    });
+    closeAchievements.addEventListener('click', () => { achievementsModal.classList.remove('active'); });
+
+    // Список достижений
+    const ACHIEVEMENTS = [
+        { id: 'click_100', name: 'Кликер-новичок', desc: 'Сделай 100 кликов', condition: () => totalClicks >= 100, reward: 1000 },
+        { id: 'click_1000', name: 'Кликер-профи', desc: 'Сделай 1000 кликов', condition: () => totalClicks >= 1000, reward: 10000 },
+        { id: 'click_10000', name: 'Кликер-легенда', desc: 'Сделай 10000 кликов', condition: () => totalClicks >= 10000, reward: 100000 },
+        { id: 'cash_1k', name: 'Первые деньги', desc: 'Заработай $1,000', condition: () => totalEarned >= 1000, reward: 500 },
+        { id: 'cash_1m', name: 'Миллионер', desc: 'Заработай $1,000,000', condition: () => totalEarned >= 1000000, reward: 50000 },
+        { id: 'cash_100m', name: 'Магнат', desc: 'Заработай $100,000,000', condition: () => totalEarned >= 100000000, reward: 5000000 },
+        { id: 'level_10', name: 'Развитие', desc: 'Достигни 10 уровня', condition: () => state.level >= 10, reward: 5000 },
+        { id: 'level_50', name: 'Мастер', desc: 'Достигни 50 уровня', condition: () => state.level >= 50, reward: 50000 },
+        { id: 'prestige_1', name: 'Перерождение', desc: 'Сделай престиж', condition: () => state.prestigeLevel >= 1, reward: 10000 },
+        { id: 'prestige_5', name: 'Мудрец', desc: 'Сделай 5 престижей', condition: () => state.prestigeLevel >= 5, reward: 100000 },
+        { id: 'prestige_10', name: 'Бессмертный', desc: 'Сделай 10 престижей', condition: () => state.prestigeLevel >= 10, reward: 1000000 },
+        { id: 'buy_10', name: 'Покупатель', desc: 'Купи 10 улучшений', condition: () => totalPurchases >= 10, reward: 5000 },
+        { id: 'buy_100', name: 'Оптовик', desc: 'Купи 100 улучшений', condition: () => totalPurchases >= 100, reward: 50000 },
+        { id: 'tech_all', name: 'Техно-гений', desc: 'Изучи все технологии', condition: () => state.tech1Lvl && state.tech2Lvl && state.tech3Lvl && state.tech4Lvl && state.tech5Lvl && state.tech6Lvl, reward: 500000 },
+        { id: 'terr_all', name: 'Завоеватель', desc: 'Захвати все территории', condition: () => state.terr1Lvl && state.terr2Lvl && state.terr3Lvl && state.terr4Lvl && state.terr5Lvl && state.terr6Lvl, reward: 1000000 },
+    ];
+
+    let unlockedAchievements = JSON.parse(localStorage.getItem('unlocked_achievements') || '[]');
+    let totalClicks = parseInt(localStorage.getItem('totalClicks') || '0');
+    let totalEarned = parseInt(localStorage.getItem('totalEarned') || '0');
+    let totalPurchases = parseInt(localStorage.getItem('totalPurchases') || '0');
+
+    function renderAchievements() {
+        let html = '';
+        ACHIEVEMENTS.forEach(a => {
+            const unlocked = unlockedAchievements.includes(a.id);
+            const icon = unlocked ? '✅' : '🔒';
+            const color = unlocked ? '#4cd137' : '#8a9bb2';
+            html += `<div style="display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #1e293b;">
+                <div>
+                    <span style="color: ${color};">${icon} ${a.name}</span>
+                    <div style="font-size: 11px; color: #8a9bb2;">${a.desc}</div>
+                </div>
+                ${unlocked ? `<span style="color: #00e676;">+$${formatNumber(a.reward)}</span>` : ''}
+            </div>`;
+        });
+        achievementsList.innerHTML = html;
+    }
+
+    function checkAchievements() {
+        ACHIEVEMENTS.forEach(a => {
+            if (!unlockedAchievements.includes(a.id) && a.condition()) {
+                unlockedAchievements.push(a.id);
+                localStorage.setItem('unlocked_achievements', JSON.stringify(unlockedAchievements));
+                // Награда
+                state.cash += a.reward;
+                triggerVibration('success');
+                playSound('gold');
+                // Показываем уведомление (через всплывающее окно)
+                const container = document.getElementById('canvas-container');
+                const rect = container.getBoundingClientRect();
+                createFloatingText(rect.width/2 - 50, rect.height/2 - 20, `🏆 ${a.name}! +$${formatNumber(a.reward)}`, true);
+                // Если есть модалка достижений открыта, обновим
+                if (achievementsModal.classList.contains('active')) renderAchievements();
+                updateUI();
+                saveGame();
+                // Автоматически отправляем рекорд, если улучшился
+                sendScoreToSupabase();
+            }
+        });
+    }
+
+    // ---------- ОТПРАВКА РЕКОРДА В SUPABASE ----------
+    async function sendScoreToSupabase() {
+        if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;
+        try {
+            const userId = getUserId();
+            const username = tg?.initDataUnsafe?.user?.username || 'Игрок';
+            const score = state.cash;
+            const level = state.level;
+            const prestige = state.prestigeLevel;
+
+            // Проверяем, есть ли уже запись
+            const checkRes = await fetch(`${SUPABASE_URL}/rest/v1/players?id=eq.${userId}`, {
+                headers: {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                }
+            });
+            const existing = await checkRes.json();
+
+            if (existing.length > 0) {
+                // Обновляем, если новый счёт больше
+                if (score > existing[0].score) {
+                    await fetch(`${SUPABASE_URL}/rest/v1/players?id=eq.${userId}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ score, level, prestige, updated_at: new Date().toISOString() })
+                    });
+                }
+            } else {
+                // Создаём новую запись
+                await fetch(`${SUPABASE_URL}/rest/v1/players`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id: userId, username, score, level, prestige })
+                });
+            }
+        } catch (e) {
+            console.log('Ошибка отправки рекорда:', e);
+        }
+    }
+
+    // ---------- РЕФЕРАЛЬНАЯ СИСТЕМА ----------
+    document.getElementById('invite-friend-btn').addEventListener('click', () => {
+        toggleMenu();
+        const userId = getUserId();
+        const botName = 'roflo_clicker_bot'; // ← замени на имя своего бота
+        const link = `https://t.me/${botName}?start=ref_${userId}`;
+        if (tg) {
+            tg.sendData(JSON.stringify({ type: 'invite', link }));
+        } else {
+            navigator.clipboard?.writeText(link).then(() => {
+                alert('Ссылка скопирована! Отправь её другу.');
+            }).catch(() => {
+                prompt('Скопируй ссылку и отправь другу:', link);
+            });
+        }
+    });
+
+    // Проверка реферального параметра при загрузке
+    function checkReferral() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const startParam = urlParams.get('start') || tg?.initDataUnsafe?.start_param;
+        if (startParam && startParam.startsWith('ref_')) {
+            const referrerId = parseInt(startParam.replace('ref_', ''));
+            const userId = getUserId();
+            if (referrerId !== userId) {
+                // Сохраняем в localStorage, что пришёл от реферера
+                localStorage.setItem('referrer', referrerId);
+                // Можно отправить в Supabase для учёта
+                if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+                    fetch(`${SUPABASE_URL}/rest/v1/referrals`, {
+                        method: 'POST',
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ referrer_id: referrerId, referred_id: userId })
+                    }).catch(e => console.log('Реферал не сохранён:', e));
+                }
+            }
+        }
+    }
+
+    // ---------- БОНУСЫ ЗА АКТИВНОСТЬ (ЕЖЕДНЕВНЫЙ ВХОД) ----------
+    function checkDailyBonus() {
+        const today = new Date().toDateString();
+        const lastLogin = localStorage.getItem('lastLogin');
+        const streak = parseInt(localStorage.getItem('streak') || '0');
+
+        if (lastLogin !== today) {
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const isStreak = lastLogin === yesterday.toDateString();
+
+            let newStreak = isStreak ? streak + 1 : 1;
+            if (newStreak > 7) newStreak = 7;
+
+            const bonuses = [0, 100, 250, 500, 1000, 2500, 5000, 10000];
+            const bonus = bonuses[newStreak] || 100;
+
+            state.cash += bonus;
+            localStorage.setItem('lastLogin', today);
+            localStorage.setItem('streak', newStreak);
+
+            // Показываем уведомление
+            setTimeout(() => {
+                const container = document.getElementById('canvas-container');
+                const rect = container.getBoundingClientRect();
+                createFloatingText(rect.width/2 - 80, rect.height/2 - 20, `🎁 Бонус за вход! +$${formatNumber(bonus)} (День ${newStreak})`, true);
+                updateUI();
+                saveGame();
+            }, 500);
+        }
+    }
+
+    // ---------- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ----------
     function formatNumber(num) {
         if (isNaN(num) || num === null) return "0";
         if (num < 1000) return num.toString();
@@ -941,7 +854,6 @@
         osc.connect(gain);
         gain.connect(audioCtx.destination);
         const now = audioCtx.currentTime;
-
         if (type === 'click') {
             osc.type = 'triangle';
             osc.frequency.setValueAtTime(500, now);
@@ -966,9 +878,19 @@
         }
     }
 
+    function createFloatingText(x, y, textStr, isFeverText = false) {
+        const text = document.createElement('div');
+        text.className = `floating-text ${isFeverText ? 'fever-text' : ''}`;
+        text.innerText = textStr;
+        text.style.left = `${x}px`;
+        text.style.top = `${y}px`;
+        document.getElementById('canvas-container').appendChild(text);
+        setTimeout(() => text.remove(), 700);
+    }
+
     // ---------- СОСТОЯНИЕ ----------
     const defaultState = {
-        version: SAVE_VERSION,
+        version: 3,
         cash: 0,
         cps: 0,
         clickPower: 1,
@@ -989,18 +911,23 @@
         tech1Lvl: 0, tech1Cost: 500,
         tech2Lvl: 0, tech2Cost: 2000,
         tech3Lvl: 0, tech3Cost: 10000,
+        tech4Lvl: 0, tech4Cost: 50000,
+        tech5Lvl: 0, tech5Cost: 250000,
+        tech6Lvl: 0, tech6Cost: 1000000,
         terr1Lvl: 0, terr1Cost: 1500,
         terr2Lvl: 0, terr2Cost: 7500,
         terr3Lvl: 0, terr3Cost: 35000,
+        terr4Lvl: 0, terr4Cost: 200000,
+        terr5Lvl: 0, terr5Cost: 1500000,
+        terr6Lvl: 0, terr6Cost: 5000000,
         lastSaveTime: Date.now()
     };
 
     let state = { ...defaultState };
-    
     let comboVal = 0;
     let isFever = false;
-    let feverActiveTimer = 0;   
-    let feverCooldownTimer = 0; 
+    let feverActiveTimer = 0;
+    let feverCooldownTimer = 0;
 
     // ---------- 3D ПЕРЕМЕННЫЕ ----------
     let scene, camera, renderer, baseGroup, platformMesh, gridMesh, outerRingMesh;
@@ -1009,7 +936,7 @@
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
-    // ---------- ФУНКЦИИ ОЧИСТКИ ВИЗУАЛА ----------
+    // ---------- ФУНКЦИИ ОЧИСТКИ ----------
     function clearDrones() {
         drones.forEach(d => {
             baseGroup.remove(d);
@@ -1041,31 +968,50 @@
 
     // ---------- ИГРОВЫЕ РАСЧЁТЫ ----------
     function getGlobalMultiplier() {
-        let mult = 1 + (state.tech1Lvl * 0.25);
-        let prestigeMult = 1 + (state.prestigeLevel * 1.0);
-        return mult * prestigeMult;
+        let mult = 1 + (state.tech1Lvl * 0.25) + (state.terr4Lvl * 0.5) + (state.prestigeLevel * 1.0);
+        return mult;
     }
 
     function getPassiveMultiplier() {
-        return state.tech2Lvl > 0 ? 1.5 : 1;
+        let mult = 1;
+        if (state.tech2Lvl > 0) mult *= 1.5;
+        if (state.tech5Lvl > 0) mult *= 2;
+        if (state.terr5Lvl > 0) mult *= 3;
+        return mult;
     }
 
-    function getClickGain() { 
-        let base = (1 + (state.clickLvl * 1)) * getGlobalMultiplier();
-        if (state.tech3Lvl > 0) base *= 2;
-        return Math.floor(base); 
+    function getClickMultiplier() {
+        let mult = 1;
+        if (state.tech3Lvl > 0) mult *= 2;
+        if (state.tech4Lvl > 0) mult *= 1.5;
+        return mult;
     }
-    
-    function getAutoGain() { 
+
+    function getClickGain() {
+        let base = (1 + (state.clickLvl * 1)) * getGlobalMultiplier() * getClickMultiplier();
+        return Math.floor(base);
+    }
+
+    function getAutoGain() {
         let base = 2 + Math.floor(state.autoLvl * 0.8);
-        return Math.floor(base * getPassiveMultiplier() * getGlobalMultiplier()); 
+        return Math.floor(base * getPassiveMultiplier() * getGlobalMultiplier());
     }
-    
-    function getSuperClickGain() { return Math.floor((5 + Math.floor(state.superClickLvl * 1.5)) * getGlobalMultiplier()); }
-    function getFactoryGain() { return Math.floor((10 + Math.floor(state.factoryLvl * 3.0)) * getPassiveMultiplier() * getGlobalMultiplier()); }
-    function getStorageGain() { return Math.floor((25 + Math.floor(state.storageLvl * 5.0)) * getPassiveMultiplier() * getGlobalMultiplier()); }
 
-    // ---------- СИСТЕМА ПРЕСТИЖА (НОВАЯ) ----------
+    function getSuperClickGain() {
+        let base = (5 + Math.floor(state.superClickLvl * 1.5)) * getGlobalMultiplier() * getClickMultiplier();
+        return Math.floor(base);
+    }
+
+    function getFactoryGain() {
+        let base = 10 + Math.floor(state.factoryLvl * 3.0);
+        return Math.floor(base * getPassiveMultiplier() * getGlobalMultiplier());
+    }
+
+    function getStorageGain() {
+        let base = 25 + Math.floor(state.storageLvl * 5.0);
+        return Math.floor(base * getPassiveMultiplier() * getGlobalMultiplier());
+    }
+
     function getPrestigeCost() {
         const level = state.prestigeLevel;
         if (level === 0) return 100000;
@@ -1073,7 +1019,6 @@
         if (level === 2) return 15000000;
         if (level === 3) return 50000000;
         if (level === 4) return 250000000;
-        // level >= 5: цена удваивается каждый раз
         return 250000000 * Math.pow(2, level - 4);
     }
 
@@ -1094,7 +1039,7 @@
         } else if (tabName === 'tech') {
             document.getElementById('tab-tech-btn').classList.add('active');
             document.getElementById('panel-tech').classList.remove('hidden');
-            document.getElementById('panel-title').innerText = 'Дерево Технологий';
+            document.getElementById('panel-title').innerText = 'Древо Технологий';
         } else if (tabName === 'territory') {
             document.getElementById('tab-territory-btn').classList.add('active');
             document.getElementById('panel-territory').classList.remove('hidden');
@@ -1103,7 +1048,7 @@
         playSound('buy');
     }
 
-    // ---------- 3D МОДЕЛИ ----------
+    // ---------- 3D СЦЕНА ----------
     function createWindow(x, y, z, rotY) {
         const winGroup = new THREE.Group();
         const frameGeo = new THREE.BoxGeometry(0.9, 1.1, 0.1);
@@ -1186,7 +1131,7 @@
         const mainGeo = new THREE.BoxGeometry(6, 6, 6);
         const mainMat = new THREE.MeshStandardMaterial({ color: 0x222a38, roughness: 0.3, metalness: 0.4 });
         mainBuildingMesh = new THREE.Mesh(mainGeo, mainMat);
-        mainBuildingMesh.position.y = 3; 
+        mainBuildingMesh.position.y = 3;
         buildingGroup.add(mainBuildingMesh);
 
         const roofGeo = new THREE.BoxGeometry(2, 0.8, 2);
@@ -1254,7 +1199,6 @@
         controls.autoRotateSpeed = 0.8;
         controls.enableZoom = false;
 
-        // Обработчик клика только на canvas
         renderer.domElement.addEventListener('pointerdown', handleCanvasClick);
 
         setInterval(spawnGoldenChest, 35000);
@@ -1281,6 +1225,7 @@
         });
     }
 
+    // ---------- ОБНОВЛЕНИЕ 3D МОДЕЛИ ----------
     function updateModelVisuals() {
         if (!baseGroup) return;
 
@@ -1295,7 +1240,6 @@
         mainBuildingMesh.position.y = 3 * heightScale;
         buildingRoofUnit.position.y = 6 * heightScale + 0.4;
 
-        // Очистка старых окон/дверей
         const oldElements = buildingGroup.children.filter(c => c !== mainBuildingMesh && c !== buildingRoofUnit);
         oldElements.forEach(el => {
             buildingGroup.remove(el);
@@ -1449,20 +1393,28 @@
             if (intersects.length > 0) {
                 const bonus = (getClickGain() + getSuperClickGain()) * 35 + 50;
                 state.cash += bonus;
+                totalEarned += bonus;
+                localStorage.setItem('totalEarned', totalEarned);
                 createFloatingText(event.clientX - rect.left, event.clientY - rect.top, `+$${formatNumber(bonus)} GOLD!`, true);
                 playSound('gold');
                 triggerVibration('heavy');
                 clearGoldenChest();
                 updateUI();
                 saveGame();
+                checkAchievements();
+                sendScoreToSupabase();
                 return;
             }
         }
 
+        totalClicks++;
+        localStorage.setItem('totalClicks', totalClicks);
         addCombo();
         const basePower = getClickGain() + getSuperClickGain();
         const currentPower = isFever ? basePower * 5 : basePower;
         state.cash += currentPower;
+        totalEarned += currentPower;
+        localStorage.setItem('totalEarned', totalEarned);
         addXP(2);
 
         createFloatingText(event.clientX - rect.left, event.clientY - rect.top, `+$${formatNumber(currentPower)}`, isFever);
@@ -1470,9 +1422,12 @@
         triggerVibration('heavy');
         updateUI();
         saveGame();
+        checkAchievements();
+        // Отправка рекорда не каждый клик, а раз в 10 секунд, чтобы не спамить
+        if (totalClicks % 10 === 0) sendScoreToSupabase();
     }
 
-    // ---------- FEVER И КОМБО ----------
+    // ---------- FEVER ----------
     function addCombo() {
         if (isFever || feverCooldownTimer > 0) return;
         comboVal = Math.min(100, comboVal + 8);
@@ -1486,6 +1441,7 @@
         const comboStatus = document.getElementById('combo-status');
         let cdMax = 180;
         if (state.tech3Lvl > 0) cdMax = 120;
+        if (state.terr6Lvl > 0) cdMax = Math.floor(cdMax * 0.5);
 
         if (isFever) {
             feverActiveTimer -= dt;
@@ -1503,7 +1459,7 @@
             feverCooldownTimer -= dt;
             const pct = Math.max(0, (feverCooldownTimer / cdMax) * 100);
             comboFill.style.width = `${pct}%`;
-            
+
             const mins = Math.floor(feverCooldownTimer / 60);
             const secs = Math.floor(feverCooldownTimer % 60);
             const formattedTime = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
@@ -1546,17 +1502,13 @@
         if (leveledUp) {
             triggerVibration('success');
             updateModelVisuals();
+            // Визуальный эффект при уровне
+            const container = document.getElementById('canvas-container');
+            const rect = container.getBoundingClientRect();
+            createFloatingText(rect.width/2 - 60, rect.height/2 - 30, `🎉 УРОВЕНЬ ${state.level}!`, true);
+            checkAchievements();
+            sendScoreToSupabase();
         }
-    }
-
-    function createFloatingText(x, y, textStr, isFeverText = false) {
-        const text = document.createElement('div');
-        text.className = `floating-text ${isFeverText ? 'fever-text' : ''}`;
-        text.innerText = textStr;
-        text.style.left = `${x}px`;
-        text.style.top = `${y}px`;
-        document.getElementById('canvas-container').appendChild(text);
-        setTimeout(() => text.remove(), 700);
     }
 
     // ---------- UI ЭЛЕМЕНТЫ ----------
@@ -1566,7 +1518,7 @@
     const levelEl = document.getElementById('level-val');
     const xpEl = document.getElementById('xp-val');
     const xpFillEl = document.getElementById('xp-fill');
-    
+
     const buyClickBtn = document.getElementById('buy-click-btn');
     const buyAutoBtn = document.getElementById('buy-auto-btn');
     const buySuperClickBtn = document.getElementById('buy-superclick-btn');
@@ -1576,127 +1528,68 @@
     const buyTech1Btn = document.getElementById('buy-tech1-btn');
     const buyTech2Btn = document.getElementById('buy-tech2-btn');
     const buyTech3Btn = document.getElementById('buy-tech3-btn');
+    const buyTech4Btn = document.getElementById('buy-tech4-btn');
+    const buyTech5Btn = document.getElementById('buy-tech5-btn');
+    const buyTech6Btn = document.getElementById('buy-tech6-btn');
 
     const buyTerr1Btn = document.getElementById('buy-terr1-btn');
     const buyTerr2Btn = document.getElementById('buy-terr2-btn');
     const buyTerr3Btn = document.getElementById('buy-terr3-btn');
+    const buyTerr4Btn = document.getElementById('buy-terr4-btn');
+    const buyTerr5Btn = document.getElementById('buy-terr5-btn');
+    const buyTerr6Btn = document.getElementById('buy-terr6-btn');
 
     // ---------- ОБРАБОТЧИКИ ПОКУПОК ----------
-    buyClickBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (state.cash >= state.clickCost) {
-            state.cash -= state.clickCost;
-            state.clickLvl = (state.clickLvl || 0) + 1;
-            state.clickCost = Math.floor(state.clickCost * 1.25);
-            playSound('buy'); triggerVibration('medium'); updateUI(); saveGame();
-        }
-    });
-
-    buyAutoBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (state.cash >= state.autoCost) {
-            state.cash -= state.autoCost;
-            state.autoLvl = (state.autoLvl || 0) + 1;
-            state.autoCost = Math.floor(state.autoCost * 1.28);
-            playSound('buy'); triggerVibration('medium'); updateModelVisuals(); updateUI(); saveGame();
-        }
-    });
-
-    buySuperClickBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (state.cash >= state.superClickCost) {
-            state.cash -= state.superClickCost;
-            state.superClickLvl = (state.superClickLvl || 0) + 1;
-            state.superClickCost = Math.floor(state.superClickCost * 1.30);
-            playSound('buy'); triggerVibration('medium'); updateModelVisuals(); updateUI(); saveGame();
-        }
-    });
-
-    buyFactoryBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (state.cash >= state.factoryCost) {
-            state.cash -= state.factoryCost;
-            state.factoryLvl = (state.factoryLvl || 0) + 1;
-            state.factoryCost = Math.floor(state.factoryCost * 1.35);
-            playSound('buy'); triggerVibration('medium'); updateModelVisuals(); updateUI(); saveGame();
-        }
-    });
-
-    buyStorageBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (state.cash >= state.storageCost) {
-            state.cash -= state.storageCost;
-            state.storageLvl = (state.storageLvl || 0) + 1;
-            state.storageCost = Math.floor(state.storageCost * 1.40);
-            playSound('buy'); triggerVibration('medium'); updateModelVisuals(); updateUI(); saveGame();
-        }
-    });
-
-    buyTech1Btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (state.cash >= state.tech1Cost && state.tech1Lvl === 0) {
-            state.cash -= state.tech1Cost;
-            state.tech1Lvl = 1;
-            playSound('buy'); triggerVibration('success'); updateUI(); saveGame();
-        }
-    });
-
-    buyTech2Btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (state.cash >= state.tech2Cost && state.tech2Lvl === 0) {
-            state.cash -= state.tech2Cost;
-            state.tech2Lvl = 1;
-            playSound('buy'); triggerVibration('success'); updateUI(); saveGame();
-        }
-    });
-
-    buyTech3Btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (state.cash >= state.tech3Cost && state.tech3Lvl === 0) {
-            state.cash -= state.tech3Cost;
-            state.tech3Lvl = 1;
-            playSound('buy'); triggerVibration('success'); updateUI(); saveGame();
-        }
-    });
-
-    buyTerr1Btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (state.cash >= state.terr1Cost && state.terr1Lvl === 0) {
-            state.cash -= state.terr1Cost;
-            state.terr1Lvl = 1;
-            playSound('buy'); triggerVibration('success'); updateModelVisuals(); updateUI(); saveGame();
-        }
-    });
-
-    buyTerr2Btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (state.cash >= state.terr2Cost && state.terr2Lvl === 0) {
-            state.cash -= state.terr2Cost;
-            state.terr2Lvl = 1;
-            playSound('buy'); triggerVibration('success'); updateModelVisuals(); updateUI(); saveGame();
-        }
-    });
-
-    buyTerr3Btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (state.cash >= state.terr3Cost && state.terr3Lvl === 0) {
-            state.cash -= state.terr3Cost;
-            state.terr3Lvl = 1;
-            state.level += 3;
-            for (let i = 0; i < 3; i++) {
-                state.xpToNext = Math.floor(state.xpToNext * 1.4);
+    function handleBuy(btn, costKey, lvlKey, costMultiplier, callback) {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (state.cash >= state[costKey]) {
+                state.cash -= state[costKey];
+                state[lvlKey] = (state[lvlKey] || 0) + 1;
+                state[costKey] = Math.floor(state[costKey] * costMultiplier);
+                totalPurchases++;
+                localStorage.setItem('totalPurchases', totalPurchases);
+                playSound('buy');
+                triggerVibration('medium');
+                if (callback) callback();
+                updateUI();
+                saveGame();
+                checkAchievements();
+                sendScoreToSupabase();
             }
-            playSound('buy'); triggerVibration('success'); updateModelVisuals(); updateUI(); saveGame();
-        }
-    });
+        });
+    }
 
-    // ---------- ПРЕСТИЖ (НОВАЯ СИСТЕМА) ----------
+    handleBuy(buyClickBtn, 'clickCost', 'clickLvl', 1.25);
+    handleBuy(buyAutoBtn, 'autoCost', 'autoLvl', 1.28, () => updateModelVisuals());
+    handleBuy(buySuperClickBtn, 'superClickCost', 'superClickLvl', 1.30, () => updateModelVisuals());
+    handleBuy(buyFactoryBtn, 'factoryCost', 'factoryLvl', 1.35, () => updateModelVisuals());
+    handleBuy(buyStorageBtn, 'storageCost', 'storageLvl', 1.40, () => updateModelVisuals());
+
+    handleBuy(buyTech1Btn, 'tech1Cost', 'tech1Lvl', 1);
+    handleBuy(buyTech2Btn, 'tech2Cost', 'tech2Lvl', 1);
+    handleBuy(buyTech3Btn, 'tech3Cost', 'tech3Lvl', 1);
+    handleBuy(buyTech4Btn, 'tech4Cost', 'tech4Lvl', 1);
+    handleBuy(buyTech5Btn, 'tech5Cost', 'tech5Lvl', 1);
+    handleBuy(buyTech6Btn, 'tech6Cost', 'tech6Lvl', 1);
+
+    handleBuy(buyTerr1Btn, 'terr1Cost', 'terr1Lvl', 1, () => updateModelVisuals());
+    handleBuy(buyTerr2Btn, 'terr2Cost', 'terr2Lvl', 1, () => updateModelVisuals());
+    handleBuy(buyTerr3Btn, 'terr3Cost', 'terr3Lvl', 1, () => {
+        state.level += 3;
+        for (let i = 0; i < 3; i++) state.xpToNext = Math.floor(state.xpToNext * 1.4);
+        updateModelVisuals();
+    });
+    handleBuy(buyTerr4Btn, 'terr4Cost', 'terr4Lvl', 1);
+    handleBuy(buyTerr5Btn, 'terr5Cost', 'terr5Lvl', 1);
+    handleBuy(buyTerr6Btn, 'terr6Cost', 'terr6Lvl', 1);
+
+    // ---------- ПРЕСТИЖ ----------
     document.getElementById('reborn-game-btn').addEventListener('click', (e) => {
         e.stopPropagation();
         const cost = getPrestigeCost();
         if (state.cash >= cost) {
             if (confirm(`Совершить перерождение за $${formatNumber(cost)}? Сбросится прогресс фабрики и деньги, но вы получите +1 уровень престижа (+100% ко всем доходам и ускорение опыта навсегда)!`)) {
-                // Сброс FEVER/комбо
                 comboVal = 0;
                 isFever = false;
                 feverActiveTimer = 0;
@@ -1719,12 +1612,10 @@
                 state.superClickCost = 120;
                 state.factoryCost = 300;
                 state.storageCost = 650;
-                state.tech1Lvl = 0;
-                state.tech2Lvl = 0;
-                state.tech3Lvl = 0;
-                state.terr1Lvl = 0;
-                state.terr2Lvl = 0;
-                state.terr3Lvl = 0;
+                state.tech1Lvl = 0; state.tech2Lvl = 0; state.tech3Lvl = 0;
+                state.tech4Lvl = 0; state.tech5Lvl = 0; state.tech6Lvl = 0;
+                state.terr1Lvl = 0; state.terr2Lvl = 0; state.terr3Lvl = 0;
+                state.terr4Lvl = 0; state.terr5Lvl = 0; state.terr6Lvl = 0;
 
                 clearDrones();
                 clearSmoke();
@@ -1734,6 +1625,13 @@
                 updateModelVisuals();
                 updateUI();
                 saveGame();
+                checkAchievements();
+                sendScoreToSupabase();
+
+                // Визуальный эффект престижа (исправлено)
+                const container = document.getElementById('canvas-container');
+                const rect = container.getBoundingClientRect();
+                createFloatingText(rect.width/2 - 100, rect.height/2 - 30, `✨ ПРЕСТИЖ ${state.prestigeLevel}!`, true);
             }
         } else {
             alert(`Для перерождения нужно $${formatNumber(cost)}!`);
@@ -1745,7 +1643,18 @@
         e.stopPropagation();
         if (confirm("Сбросить абсолютно весь прогресс, включая престиж?")) {
             localStorage.removeItem('tycoon3d_save');
+            localStorage.removeItem('totalClicks');
+            localStorage.removeItem('totalEarned');
+            localStorage.removeItem('totalPurchases');
+            localStorage.removeItem('unlocked_achievements');
+            localStorage.removeItem('streak');
+            localStorage.removeItem('lastLogin');
+            localStorage.removeItem('playerId');
             state = { ...defaultState, lastSaveTime: Date.now() };
+            totalClicks = 0;
+            totalEarned = 0;
+            totalPurchases = 0;
+            unlockedAchievements = [];
 
             comboVal = 0;
             isFever = false;
@@ -1763,6 +1672,19 @@
         }
     });
 
+    // ---------- АВТОКЛИК ОТ ТЕХНОЛОГИИ 6 ----------
+    setInterval(() => {
+        if (state.tech6Lvl > 0) {
+            const autoClickIncome = getClickGain() + getSuperClickGain();
+            state.cash += autoClickIncome;
+            totalEarned += autoClickIncome;
+            localStorage.setItem('totalEarned', totalEarned);
+            updateUI();
+            saveGame();
+            checkAchievements();
+        }
+    }, 3000);
+
     // ---------- ОБНОВЛЕНИЕ UI ----------
     function updateUI() {
         state.cps = getAutoGain() + getFactoryGain() + getStorageGain();
@@ -1771,7 +1693,7 @@
         document.getElementById('reborn-tier-label').innerText = `Баланс (Престиж x${state.prestigeLevel})`;
         cpsEl.innerText = `+ $${formatNumber(state.cps)} /сек`;
         cpcEl.innerText = `+ $${formatNumber((getClickGain() + getSuperClickGain()) * (isFever ? 5 : 1))} /клик`;
-        
+
         levelEl.innerText = `Уровень ${state.level}`;
         xpEl.innerText = `XP: ${formatNumber(state.xp)} / ${formatNumber(state.xpToNext)}`;
         xpFillEl.style.width = `${Math.min(100, (state.xp / state.xpToNext) * 100)}%`;
@@ -1794,27 +1716,49 @@
         document.getElementById('upgrade-factory-cost').innerText = `Цена: $${formatNumber(state.factoryCost)}`;
         document.getElementById('upgrade-storage-cost').innerText = `Цена: $${formatNumber(state.storageCost)}`;
 
-        document.getElementById('lvl-tech1').innerText = state.tech1Lvl > 0 ? 'Изучено' : 'Закрыто';
-        document.getElementById('lvl-tech2').innerText = state.tech2Lvl > 0 ? 'Изучено' : 'Закрыто';
-        document.getElementById('lvl-tech3').innerText = state.tech3Lvl > 0 ? 'Изучено' : 'Закрыто';
+        const techStatus = (lvl) => lvl > 0 ? 'Изучено' : 'Закрыто';
+        document.getElementById('lvl-tech1').innerText = techStatus(state.tech1Lvl);
+        document.getElementById('lvl-tech2').innerText = techStatus(state.tech2Lvl);
+        document.getElementById('lvl-tech3').innerText = techStatus(state.tech3Lvl);
+        document.getElementById('lvl-tech4').innerText = techStatus(state.tech4Lvl);
+        document.getElementById('lvl-tech5').innerText = techStatus(state.tech5Lvl);
+        document.getElementById('lvl-tech6').innerText = techStatus(state.tech6Lvl);
+
         document.getElementById('cost-tech1').innerText = state.tech1Lvl > 0 ? 'Максимум' : `Цена: $${formatNumber(state.tech1Cost)}`;
         document.getElementById('cost-tech2').innerText = state.tech2Lvl > 0 ? 'Максимум' : `Цена: $${formatNumber(state.tech2Cost)}`;
         document.getElementById('cost-tech3').innerText = state.tech3Lvl > 0 ? 'Максимум' : `Цена: $${formatNumber(state.tech3Cost)}`;
-        
+        document.getElementById('cost-tech4').innerText = state.tech4Lvl > 0 ? 'Максимум' : `Цена: $${formatNumber(state.tech4Cost)}`;
+        document.getElementById('cost-tech5').innerText = state.tech5Lvl > 0 ? 'Максимум' : `Цена: $${formatNumber(state.tech5Cost)}`;
+        document.getElementById('cost-tech6').innerText = state.tech6Lvl > 0 ? 'Максимум' : `Цена: $${formatNumber(state.tech6Cost)}`;
+
         buyTech1Btn.disabled = state.tech1Lvl > 0 || state.cash < state.tech1Cost;
         buyTech2Btn.disabled = state.tech2Lvl > 0 || state.cash < state.tech2Cost;
         buyTech3Btn.disabled = state.tech3Lvl > 0 || state.cash < state.tech3Cost;
+        buyTech4Btn.disabled = state.tech4Lvl > 0 || state.cash < state.tech4Cost;
+        buyTech5Btn.disabled = state.tech5Lvl > 0 || state.cash < state.tech5Cost;
+        buyTech6Btn.disabled = state.tech6Lvl > 0 || state.cash < state.tech6Cost;
 
-        document.getElementById('lvl-terr1').innerText = state.terr1Lvl > 0 ? 'Захвачено' : 'Закрыто';
-        document.getElementById('lvl-terr2').innerText = state.terr2Lvl > 0 ? 'Захвачено' : 'Закрыто';
-        document.getElementById('lvl-terr3').innerText = state.terr3Lvl > 0 ? 'Захвачено' : 'Закрыто';
+        const terrStatus = (lvl) => lvl > 0 ? 'Захвачено' : 'Закрыто';
+        document.getElementById('lvl-terr1').innerText = terrStatus(state.terr1Lvl);
+        document.getElementById('lvl-terr2').innerText = terrStatus(state.terr2Lvl);
+        document.getElementById('lvl-terr3').innerText = terrStatus(state.terr3Lvl);
+        document.getElementById('lvl-terr4').innerText = terrStatus(state.terr4Lvl);
+        document.getElementById('lvl-terr5').innerText = terrStatus(state.terr5Lvl);
+        document.getElementById('lvl-terr6').innerText = terrStatus(state.terr6Lvl);
+
         document.getElementById('cost-terr1').innerText = state.terr1Lvl > 0 ? 'Максимум' : `Цена: $${formatNumber(state.terr1Cost)}`;
         document.getElementById('cost-terr2').innerText = state.terr2Lvl > 0 ? 'Максимум' : `Цена: $${formatNumber(state.terr2Cost)}`;
         document.getElementById('cost-terr3').innerText = state.terr3Lvl > 0 ? 'Максимум' : `Цена: $${formatNumber(state.terr3Cost)}`;
+        document.getElementById('cost-terr4').innerText = state.terr4Lvl > 0 ? 'Максимум' : `Цена: $${formatNumber(state.terr4Cost)}`;
+        document.getElementById('cost-terr5').innerText = state.terr5Lvl > 0 ? 'Максимум' : `Цена: $${formatNumber(state.terr5Cost)}`;
+        document.getElementById('cost-terr6').innerText = state.terr6Lvl > 0 ? 'Максимум' : `Цена: $${formatNumber(state.terr6Cost)}`;
 
         buyTerr1Btn.disabled = state.terr1Lvl > 0 || state.cash < state.terr1Cost;
         buyTerr2Btn.disabled = state.terr2Lvl > 0 || state.cash < state.terr2Cost;
         buyTerr3Btn.disabled = state.terr3Lvl > 0 || state.cash < state.terr3Cost;
+        buyTerr4Btn.disabled = state.terr4Lvl > 0 || state.cash < state.terr4Cost;
+        buyTerr5Btn.disabled = state.terr5Lvl > 0 || state.cash < state.terr5Cost;
+        buyTerr6Btn.disabled = state.terr6Lvl > 0 || state.cash < state.terr6Cost;
 
         buyClickBtn.disabled = state.cash < state.clickCost;
         buyAutoBtn.disabled = state.cash < state.autoCost;
@@ -1822,12 +1766,11 @@
         buyFactoryBtn.disabled = state.cash < state.factoryCost;
         buyStorageBtn.disabled = state.cash < state.storageCost;
 
-        // Обновление кнопки престижа с ценой
         const cost = getPrestigeCost();
         document.getElementById('reborn-game-btn').innerText = `🔄 Престиж ($${formatNumber(cost)})`;
     }
 
-    // ---------- СОХРАНЕНИЕ И ЗАГРУЗКА ----------
+    // ---------- СОХРАНЕНИЕ ----------
     function saveGame() {
         state.lastSaveTime = Date.now();
         localStorage.setItem('tycoon3d_save', JSON.stringify(state));
@@ -1839,9 +1782,8 @@
             try {
                 const parsed = JSON.parse(saved);
                 Object.assign(state, defaultState, parsed);
-                state.version = SAVE_VERSION;
+                state.version = 3;
 
-                // Пересчёт CPS для оффлайна
                 state.cps = getAutoGain() + getFactoryGain() + getStorageGain();
 
                 if (state.lastSaveTime && state.cps > 0) {
@@ -1850,32 +1792,50 @@
                     if (elapsedSec > 3) {
                         const offlineEarnings = elapsedSec * state.cps;
                         state.cash += offlineEarnings;
+                        totalEarned += offlineEarnings;
+                        localStorage.setItem('totalEarned', totalEarned);
                     }
                 }
             } catch (e) {
-                console.error("Ошибка загрузки сохранения, используется дефолтное.", e);
+                console.error("Ошибка загрузки сохранения", e);
                 Object.assign(state, defaultState);
             }
         } else {
             Object.assign(state, defaultState);
         }
+        // Восстанавливаем статистику
+        totalClicks = parseInt(localStorage.getItem('totalClicks') || '0');
+        totalEarned = parseInt(localStorage.getItem('totalEarned') || '0');
+        totalPurchases = parseInt(localStorage.getItem('totalPurchases') || '0');
+        unlockedAchievements = JSON.parse(localStorage.getItem('unlocked_achievements') || '[]');
+
         updateModelVisuals();
         updateUI();
+        checkAchievements();
     }
 
     // ---------- ПАССИВНЫЙ ДОХОД ----------
     setInterval(() => {
         if (state.cps > 0) {
             state.cash += state.cps;
+            totalEarned += state.cps;
+            localStorage.setItem('totalEarned', totalEarned);
             updateUI();
             saveGame();
+            checkAchievements();
         }
     }, 1000);
 
-    // ---------- СТАРТ ----------
+    // ---------- ЗАПУСК ----------
     window.addEventListener('DOMContentLoaded', () => {
         init3D();
         loadGame();
+        checkDailyBonus();
+        checkReferral();
+        // Отправляем рекорд при старте (если есть деньги)
+        setTimeout(() => {
+            if (state.cash > 0) sendScoreToSupabase();
+        }, 2000);
     });
 </script>
 </body>
