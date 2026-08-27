@@ -9,7 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     
     <style>
-        /* ===== СТИЛИ (с правками для UI) ===== */
+        /* ===== СТИЛИ ===== */
         * {
             box-sizing: border-box;
             user-select: none;
@@ -185,6 +185,7 @@
         .theme-btn:hover { border-color: var(--accent); background: rgba(255, 255, 255, 0.1); }
         .close-settings-btn { background: #334155; border: none; color: #fff; padding: 8px 16px; border-radius: 6px; cursor: pointer; width: 100%; }
 
+        /* ===== СТАТИСТИКА — обновлённая ===== */
         .stats-panel {
             background: var(--panel-bg);
             border: 1px solid var(--accent);
@@ -193,21 +194,15 @@
             border-radius: 16px;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 4px;
             flex-shrink: 0;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
         }
-        .stats-main-row {
-            display: flex;
-            align-items: center;
-            width: 100%;
-        }
         .cash-box {
             display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 6px;
-            width: 100%;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 0;
         }
         .cash-label {
             font-size: 10px;
@@ -215,7 +210,15 @@
             letter-spacing: 1px;
             color: #7f8c8d;
             font-weight: 700;
-            width: 100%;
+            margin-bottom: 2px;
+        }
+        /* Строка баланса: сумма + бейджи дохода, привязанные к ней */
+        .cash-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            min-width: 0;
         }
         .cash-display {
             font-size: 24px;
@@ -223,15 +226,28 @@
             color: #00e676;
             text-shadow: 0 0 12px rgba(0, 230, 118, 0.35);
             white-space: nowrap;
-            flex: 0 1 auto;
-            min-width: 60px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 0;
+            flex: 1 1 auto;
+        }
+        .stats-secondary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: #a4b0be;
+            margin-top: 4px;
+        }
+        .left-stats {
+            display: flex;
+            gap: 12px;
         }
         .income-badges {
             display: flex;
-            flex-wrap: wrap;
-            gap: 4px;
-            align-items: center;
-            margin-left: auto;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
             flex-shrink: 0;
         }
         .badge-rate {
@@ -256,8 +272,8 @@
         }
         .level-bar-container { width: 100%; height: 6px; background: #141824; border-radius: 6px; overflow: hidden; }
         .level-bar-fill { height: 100%; width: 0%; background: var(--accent); box-shadow: 0 0 8px var(--accent); transition: width 0.3s ease; }
-        .stats-secondary { display: flex; justify-content: space-between; font-size: 11px; color: #a4b0be; }
 
+        /* Остальные стили без изменений */
         #canvas-container {
             width: 100%;
             height: 26vh;
@@ -477,11 +493,11 @@
 </div>
 
 <div class="game-card">
-    <!-- СТАТИСТИКА -->
+    <!-- СТАТИСТИКА (обновлённая структура) -->
     <div class="stats-panel">
-        <div class="stats-main-row">
-            <div class="cash-box">
-                <span class="cash-label" id="reborn-tier-label">Баланс (Престиж x0)</span>
+        <div class="cash-box">
+            <span class="cash-label" id="reborn-tier-label">Баланс (Престиж x0)</span>
+            <div class="cash-row">
                 <div class="cash-display" id="cash-val">$0</div>
                 <div class="income-badges">
                     <div class="badge-rate" id="cps-val">+ $0 /сек</div>
@@ -490,8 +506,10 @@
             </div>
         </div>
         <div class="stats-secondary">
-            <span id="level-val" style="font-weight:700; color:#fff;">Уровень 1</span>
-            <span id="xp-val">XP: 0 / 100</span>
+            <div class="left-stats">
+                <span id="level-val" style="font-weight:700; color:#fff;">Уровень 1</span>
+                <span id="xp-val">XP: 0 / 100</span>
+            </div>
         </div>
         <div class="level-bar-container">
             <div class="level-bar-fill" id="xp-fill"></div>
@@ -558,8 +576,8 @@
     // ================================================================
     // ===== ВСТАВЬ СВОИ ДАННЫЕ ИЗ SUPABASE СЮДА =====
     // ================================================================
-    const SUPABASE_URL = 'https://xbquaednsadmtprjkenh.supabase.co';  // ← сюда твой Project URL
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhicXVhZWRuc2FkbXRwcmprZW5oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3ODQwNzksImV4cCI6MjEwMzM2MDA3OX0.OJka8TrP02Co2z9eYbauWAu0UgjRTpvlKO9xNBLK_9I';  // ← сюда твой anon public ключ
+    const SUPABASE_URL = 'https://xbquaednsadmtprjkenh.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhicXVhZWRuc2FkbXRwcmprZW5oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3ODQwNzksImV4cCI6MjEwMzM2MDA3OX0.OJka8TrP02Co2z9eYbauWAu0UgjRTpvlKO9xNBLK_9I';
     // ================================================================
 
     // ---------- ИНИЦИАЛИЗАЦИЯ TELEGRAM WEBAPP ----------
@@ -578,7 +596,7 @@
             userId = tg?.initDataUnsafe?.user?.id || Math.floor(Math.random() * 1000000000);
             localStorage.setItem('playerId', userId);
         }
-        return userId;
+        return Number(userId);
     }
 
     // ---------- МЕНЮ ----------
@@ -678,7 +696,6 @@
     });
     closeAchievements.addEventListener('click', () => { achievementsModal.classList.remove('active'); });
 
-    // Список достижений
     const ACHIEVEMENTS = [
         { id: 'click_100', name: 'Кликер-новичок', desc: 'Сделай 100 кликов', condition: () => totalClicks >= 100, reward: 1000 },
         { id: 'click_1000', name: 'Кликер-профи', desc: 'Сделай 1000 кликов', condition: () => totalClicks >= 1000, reward: 10000 },
@@ -720,28 +737,29 @@
     }
 
     function checkAchievements() {
+        let anyUnlocked = false;
         ACHIEVEMENTS.forEach(a => {
             if (!unlockedAchievements.includes(a.id) && a.condition()) {
                 unlockedAchievements.push(a.id);
                 localStorage.setItem('unlocked_achievements', JSON.stringify(unlockedAchievements));
-                // Награда
                 state.cash += a.reward;
-                // totalEarned не обновляем, чтобы достижения не завышали статистику заработка (это честнее)
                 triggerVibration('success');
                 playSound('gold');
-                // Показываем уведомление (через всплывающее окно)
                 const container = document.getElementById('canvas-container');
                 const rect = container.getBoundingClientRect();
                 createFloatingText(rect.width/2 - 50, rect.height/2 - 20, `🏆 ${a.name}! +$${formatNumber(a.reward)}`, true);
                 if (achievementsModal.classList.contains('active')) renderAchievements();
-                updateUI();
-                saveGame();
-                sendScoreToSupabase();
+                anyUnlocked = true;
             }
         });
+        if (anyUnlocked) {
+            updateUI();
+            saveGame();
+            sendScoreToSupabase();
+        }
     }
 
-    // ---------- ОТПРАВКА РЕКОРДА В SUPABASE ----------
+    // ---------- ОТПРАВКА РЕКОРДА ----------
     async function sendScoreToSupabase() {
         if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;
         try {
@@ -751,7 +769,6 @@
             const level = state.level;
             const prestige = state.prestigeLevel;
 
-            // Проверяем, есть ли уже запись
             const checkRes = await fetch(`${SUPABASE_URL}/rest/v1/players?id=eq.${userId}`, {
                 headers: {
                     'apikey': SUPABASE_ANON_KEY,
@@ -788,14 +805,13 @@
         }
     }
 
-    // ---------- РЕФЕРАЛЬНАЯ СИСТЕМА (исправлена) ----------
+    // ---------- РЕФЕРАЛЬНАЯ СИСТЕМА ----------
     document.getElementById('invite-friend-btn').addEventListener('click', () => {
         toggleMenu();
         const userId = getUserId();
-        const botName = 'roflo_clicker_bot'; // ← замени на имя своего бота
+        const botName = 'roflo_clicker_bot';
         const link = `https://t.me/${botName}?start=ref_${userId}`;
         
-        // Копируем ссылку в буфер обмена (работает везде)
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(link).then(() => {
                 alert('Ссылка скопирована! Отправь её другу.');
@@ -807,7 +823,6 @@
         }
     });
 
-    // Проверка реферального параметра при загрузке
     function checkReferral() {
         const urlParams = new URLSearchParams(window.location.search);
         const startParam = urlParams.get('start') || tg?.initDataUnsafe?.start_param;
@@ -831,7 +846,7 @@
         }
     }
 
-    // ---------- БОНУСЫ ЗА АКТИВНОСТЬ (ЕЖЕДНЕВНЫЙ ВХОД) ----------
+    // ---------- ЕЖЕДНЕВНЫЙ БОНУС ----------
     function checkDailyBonus() {
         const today = new Date().toDateString();
         const lastLogin = localStorage.getItem('lastLogin');
@@ -982,7 +997,7 @@
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
-    // ---------- ФУНКЦИИ ОЧИСТКИ ----------
+    // ---------- ОЧИСТКА ----------
     function clearDrones() {
         drones.forEach(d => {
             baseGroup.remove(d);
@@ -1012,7 +1027,7 @@
         }
     }
 
-    // ---------- ИГРОВЫЕ РАСЧЁТЫ (с бонусом за каждые 10 уровней) ----------
+    // ---------- ИГРОВЫЕ РАСЧЁТЫ ----------
     function getGlobalMultiplier() {
         let mult = 1 + (state.tech1Lvl * 0.25) + (state.terr4Lvl * 0.5) + (state.prestigeLevel * 1.0);
         return mult;
@@ -1106,12 +1121,10 @@
         const frameMat = new THREE.MeshStandardMaterial({ color: 0x485460, metalness: 0.8, roughness: 0.3 });
         const frame = new THREE.Mesh(frameGeo, frameMat);
         winGroup.add(frame);
-
         const glassGeo = new THREE.BoxGeometry(0.7, 0.9, 0.12);
         const glassMat = new THREE.MeshStandardMaterial({ color: 0x00f2fe, emissive: 0x00f2fe, emissiveIntensity: 0.8 });
         const glass = new THREE.Mesh(glassGeo, glassMat);
         winGroup.add(glass);
-
         winGroup.position.set(x, y, z);
         winGroup.rotation.y = rotY;
         return winGroup;
@@ -1124,13 +1137,11 @@
         const portal = new THREE.Mesh(portalGeo, portalMat);
         portal.position.y = 1.1;
         doorGroup.add(portal);
-
         const leafGeo = new THREE.BoxGeometry(1.2, 1.9, 0.18);
         const leafMat = new THREE.MeshStandardMaterial({ color: 0x00f2fe, emissive: 0x00f2fe, emissiveIntensity: 0.4, metalness: 0.5 });
         const leaf = new THREE.Mesh(leafGeo, leafMat);
         leaf.position.set(0, 1.05, 0.02);
         doorGroup.add(leaf);
-
         doorGroup.position.set(x, y, z);
         doorGroup.rotation.y = rotY;
         return doorGroup;
@@ -1138,13 +1149,10 @@
 
     function init3D() {
         const container = document.getElementById('canvas-container');
-
         scene = new THREE.Scene();
         scene.background = new THREE.Color(0x0f141d);
-
         camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
         camera.position.set(22, 18, 26);
-
         renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.setSize(container.clientWidth, container.clientHeight);
@@ -1153,24 +1161,20 @@
 
         const hemiLight = new THREE.HemisphereLight(0xffffff, 0x111625, 1.3);
         scene.add(hemiLight);
-
         const dirLight = new THREE.DirectionalLight(0x00f2fe, 1.8);
         dirLight.position.set(15, 25, 20);
         scene.add(dirLight);
 
         baseGroup = new THREE.Group();
         scene.add(baseGroup);
-
         const platformGeo = new THREE.BoxGeometry(16, 0.6, 16);
         const platformMat = new THREE.MeshStandardMaterial({ color: 0x181e2b, roughness: 0.5, metalness: 0.6 });
         platformMesh = new THREE.Mesh(platformGeo, platformMat);
         platformMesh.position.y = -0.3;
         baseGroup.add(platformMesh);
-
         gridMesh = new THREE.GridHelper(16, 16, 0x00f2fe, 0x243044);
         gridMesh.position.y = 0.01;
         baseGroup.add(gridMesh);
-
         const ringGeo = new THREE.BoxGeometry(24, 0.4, 24);
         const ringMat = new THREE.MeshStandardMaterial({ color: 0x111622, roughness: 0.7, metalness: 0.8 });
         outerRingMesh = new THREE.Mesh(ringGeo, ringMat);
@@ -1184,13 +1188,11 @@
         mainBuildingMesh = new THREE.Mesh(mainGeo, mainMat);
         mainBuildingMesh.position.y = 3;
         buildingGroup.add(mainBuildingMesh);
-
         const roofGeo = new THREE.BoxGeometry(2, 0.8, 2);
         const roofMat = new THREE.MeshStandardMaterial({ color: 0x3a475a, metalness: 0.8 });
         buildingRoofUnit = new THREE.Mesh(roofGeo, roofMat);
         buildingRoofUnit.position.set(0, 6.4, 0);
         buildingGroup.add(buildingRoofUnit);
-
         baseGroup.add(buildingGroup);
 
         factoryWingMesh = new THREE.Group();
@@ -1199,13 +1201,11 @@
         const facBody = new THREE.Mesh(facGeo, facMat);
         facBody.position.set(5.0, 2.25, 0);
         factoryWingMesh.add(facBody);
-
         const pipeGeo = new THREE.CylinderGeometry(0.5, 0.6, 3.5);
         const pipeMat = new THREE.MeshStandardMaterial({ color: 0x57606f });
         const pipe = new THREE.Mesh(pipeGeo, pipeMat);
         pipe.position.set(5.0, 5.5, -1);
         factoryWingMesh.add(pipe);
-
         factoryWingMesh.visible = false;
         baseGroup.add(factoryWingMesh);
 
@@ -1215,13 +1215,11 @@
         const storBody = new THREE.Mesh(storGeo, storMat);
         storBody.position.set(-5.5, 1.5, -5.5);
         storageMesh.add(storBody);
-
         const doorGeo = new THREE.BoxGeometry(2, 2.2, 0.1);
         const doorMat = new THREE.MeshStandardMaterial({ color: 0x1e272e, metalness: 0.8 });
         const door = new THREE.Mesh(doorGeo, doorMat);
         door.position.set(-5.5, 1.1, -3.44);
         storageMesh.add(door);
-
         storageMesh.visible = false;
         baseGroup.add(storageMesh);
 
@@ -1232,12 +1230,10 @@
             const poleMat = new THREE.MeshStandardMaterial({ color: 0x485460 });
             const pole = new THREE.Mesh(poleGeo, poleMat);
             pole.position.set(pos[0], 1.4, pos[1]);
-
             const headGeo = new THREE.SphereGeometry(0.4);
             const headMat = new THREE.MeshBasicMaterial({ color: 0x00f2fe });
             const head = new THREE.Mesh(headGeo, headMat);
             head.position.set(pos[0], 2.8, pos[1]);
-
             lampsGroup.add(pole);
             lampsGroup.add(head);
         });
@@ -1249,9 +1245,7 @@
         controls.autoRotate = true;
         controls.autoRotateSpeed = 0.8;
         controls.enableZoom = false;
-
         renderer.domElement.addEventListener('pointerdown', handleCanvasClick);
-
         setInterval(spawnGoldenChest, 35000);
 
         let lastTime = performance.now();
@@ -1259,7 +1253,6 @@
             requestAnimationFrame(animate);
             const dt = (currentTime - lastTime) / 1000;
             lastTime = currentTime;
-
             controls.update();
             updateSmoke();
             updateDrones();
@@ -1279,11 +1272,9 @@
     // ---------- ОБНОВЛЕНИЕ 3D МОДЕЛИ ----------
     function updateModelVisuals() {
         if (!baseGroup) return;
-
         const platformScale = 1 + Math.min((state.level - 1) * 0.05, 0.6);
         platformMesh.scale.set(platformScale, 1, platformScale);
         gridMesh.scale.set(platformScale, 1, platformScale);
-
         if (outerRingMesh) outerRingMesh.visible = (state.terr1Lvl > 0);
 
         const heightScale = 1 + Math.min((state.level - 1) * 0.08, 1.2);
@@ -1304,18 +1295,15 @@
 
         const currentBuildingHeight = 6 * heightScale;
         const floorsCount = Math.max(1, Math.floor(currentBuildingHeight / 2.2));
-
         for (let i = 0; i < floorsCount; i++) {
             const floorY = 1.8 + i * 1.8;
             if (floorY < currentBuildingHeight - 0.5) {
                 buildingGroup.add(createWindow(0, floorY, 3.01, 0));
                 buildingGroup.add(createWindow(-1.6, floorY, 3.01, 0));
                 buildingGroup.add(createWindow(1.6, floorY, 3.01, 0));
-
                 buildingGroup.add(createWindow(-3.01, floorY, 0, -Math.PI / 2));
                 buildingGroup.add(createWindow(-3.01, floorY, -1.6, -Math.PI / 2));
                 buildingGroup.add(createWindow(-3.01, floorY, 1.6, -Math.PI / 2));
-
                 if (i === 0) {
                     buildingGroup.add(createDoor(0, 0, -3.01, Math.PI));
                     buildingGroup.add(createWindow(-1.6, floorY + 1.2, -3.01, Math.PI));
@@ -1325,7 +1313,6 @@
                     buildingGroup.add(createWindow(-1.6, floorY, -3.01, Math.PI));
                     buildingGroup.add(createWindow(1.6, floorY, -3.01, Math.PI));
                 }
-
                 buildingGroup.add(createWindow(3.01, floorY, 0, Math.PI / 2));
                 buildingGroup.add(createWindow(3.01, floorY, -1.6, Math.PI / 2));
                 buildingGroup.add(createWindow(3.01, floorY, 1.6, Math.PI / 2));
@@ -1338,7 +1325,6 @@
 
         let maxDrones = 8;
         if (state.terr2Lvl > 0) maxDrones = 16;
-
         clearDrones();
         for (let i = 0; i < Math.min(state.autoLvl, maxDrones); i++) {
             createDrone();
@@ -1351,14 +1337,12 @@
         const bodyMat = new THREE.MeshBasicMaterial({ color: 0x00f2fe });
         const body = new THREE.Mesh(bodyGeo, bodyMat);
         droneGroup.add(body);
-
         droneGroup.userData = {
             angle: Math.random() * Math.PI * 2,
             speed: 0.02 + Math.random() * 0.01,
             radius: 1.6 + Math.random() * 0.5,
             height: 4.2 + Math.random() * 1.5
         };
-
         baseGroup.add(droneGroup);
         drones.push(droneGroup);
     }
@@ -1393,7 +1377,6 @@
             p.scale.multiplyScalar(1.015);
             p.userData.opacity -= 0.012;
             p.material.opacity = p.userData.opacity;
-
             if (p.userData.opacity <= 0) {
                 scene.remove(p);
                 p.geometry.dispose();
@@ -1428,15 +1411,13 @@
         }
     }
 
-    // ---------- ОБРАБОТЧИК КЛИКА ПО 3D ----------
+    // ---------- ОБРАБОТЧИК КЛИКА ----------
     function handleCanvasClick(event) {
         if (event.target !== renderer.domElement) return;
         initAudio();
-
         const rect = renderer.domElement.getBoundingClientRect();
         mouse.x = ((event.clientX - rect.left) / renderer.domElement.clientWidth) * 2 - 1;
         mouse.y = -((event.clientY - rect.top) / renderer.domElement.clientHeight) * 2 + 1;
-
         raycaster.setFromCamera(mouse, camera);
 
         if (goldenChest) {
@@ -1467,14 +1448,12 @@
         totalEarned += currentPower;
         localStorage.setItem('totalEarned', totalEarned);
         addXP(2);
-
         createFloatingText(event.clientX - rect.left, event.clientY - rect.top, `+$${formatNumber(currentPower)}`, isFever);
         playSound('click');
         triggerVibration('heavy');
         updateUI();
         saveGame();
         checkAchievements();
-        // Отправка рекорда не каждый клик, а раз в 10 секунд, чтобы не спамить
         if (totalClicks % 10 === 0) sendScoreToSupabase();
     }
 
@@ -1482,9 +1461,7 @@
     function addCombo() {
         if (isFever || feverCooldownTimer > 0) return;
         comboVal = Math.min(100, comboVal + 8);
-        if (comboVal >= 100) {
-            activateFever();
-        }
+        if (comboVal >= 100) activateFever();
     }
 
     function handleFeverTimers(dt) {
@@ -1499,7 +1476,6 @@
             const pct = Math.max(0, (feverActiveTimer / 4) * 100);
             comboFill.style.width = `${pct}%`;
             comboStatus.innerText = `🔥 FEVER ОСТАЛОСЬ: ${Math.ceil(feverActiveTimer)}с`;
-
             if (feverActiveTimer <= 0) {
                 isFever = false;
                 feverCooldownTimer = cdMax;
@@ -1508,22 +1484,18 @@
             }
         } else if (feverCooldownTimer > 0) {
             feverCooldownTimer -= dt;
-            const pct = Math.max(0, (feverCooldownTimer / cdMax) * 100);
+            const pct = Math.min(100, Math.max(0, (feverCooldownTimer / cdMax) * 100));
             comboFill.style.width = `${pct}%`;
-
             const mins = Math.floor(feverCooldownTimer / 60);
             const secs = Math.floor(feverCooldownTimer % 60);
             const formattedTime = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
             comboStatus.innerText = `⏳ КД FEVER: ${formattedTime}`;
-
             if (feverCooldownTimer <= 0) {
                 comboVal = 0;
                 comboStatus.innerText = `Заряд FEVER: 0%`;
             }
         } else {
-            if (comboVal > 0) {
-                comboVal = Math.max(0, comboVal - dt * 15);
-            }
+            if (comboVal > 0) comboVal = Math.max(0, comboVal - dt * 15);
             comboFill.style.width = `${comboVal}%`;
             comboStatus.innerText = `Заряд FEVER: ${Math.floor(comboVal)}%`;
         }
@@ -1553,7 +1525,6 @@
         if (leveledUp) {
             triggerVibration('success');
             updateModelVisuals();
-            // Визуальный эффект при уровне
             const container = document.getElementById('canvas-container');
             const rect = container.getBoundingClientRect();
             createFloatingText(rect.width/2 - 60, rect.height/2 - 30, `🎉 УРОВЕНЬ ${state.level}!`, true);
@@ -1833,9 +1804,7 @@
                 const parsed = JSON.parse(saved);
                 Object.assign(state, defaultState, parsed);
                 state.version = 3;
-
                 state.cps = getAutoGain() + getFactoryGain() + getStorageGain();
-
                 if (state.lastSaveTime && state.cps > 0) {
                     const MAX_OFFLINE_SEC = 12 * 60 * 60;
                     const elapsedSec = Math.min(MAX_OFFLINE_SEC, Math.floor((Date.now() - state.lastSaveTime) / 1000));
@@ -1853,12 +1822,10 @@
         } else {
             Object.assign(state, defaultState);
         }
-        // Восстанавливаем статистику
         totalClicks = parseInt(localStorage.getItem('totalClicks') || '0');
         totalEarned = parseInt(localStorage.getItem('totalEarned') || '0');
         totalPurchases = parseInt(localStorage.getItem('totalPurchases') || '0');
         unlockedAchievements = JSON.parse(localStorage.getItem('unlocked_achievements') || '[]');
-
         updateModelVisuals();
         updateUI();
         checkAchievements();
